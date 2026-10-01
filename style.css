@@ -24,50 +24,56 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-html {
-  height: 100%;
-  overflow: hidden;
-}
-body {
+html, body {
   height: 100%;
   width: 100%;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
-  background: var(--black);
-  color: var(--black);
+  background: #000;
+  color: #000;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
-  position: relative;
 }
 
 /* ============ BG VIDEO ============ */
 .bg-global {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   object-fit: cover;
-  z-index: -1;
+  z-index: 0 !important;
   filter: grayscale(100%) contrast(1.05);
-  pointer-events: none;
+  pointer-events: none !important;
 }
 .bg-overlay {
-  position: fixed;
-  inset: 0;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.72) 100%);
-  z-index: 0;
-  pointer-events: none;
+  z-index: 1 !important;
+  pointer-events: none !important;
 }
 
 /* ============ SCREEN ============ */
 .screen {
   display: none;
-  position: absolute;
-  inset: 0;
-  z-index: 10;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 10 !important;
   flex-direction: column;
   overflow: hidden;
 }
-.screen.active { display: flex; }
+.screen.active {
+  display: flex !important;
+}
 
 /* ============ SPLASH ============ */
 .splash-wrap {
@@ -80,7 +86,7 @@ body {
   padding: 40px 24px;
   padding-top: calc(40px + var(--safe-top));
   position: relative;
-  z-index: 50;
+  z-index: 20;
 }
 .splash-logo {
   width: 200px;
@@ -119,15 +125,15 @@ body {
   transition: transform .16s ease, box-shadow .16s ease;
   -webkit-appearance: none;
   appearance: none;
-  pointer-events: auto;
-  z-index: 100;
+  pointer-events: auto !important;
   position: relative;
+  z-index: 30;
 }
 .btn-primary { background: var(--black); color: var(--white); box-shadow: var(--brut-w); }
 .btn-primary:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--white); }
 .btn-outline { background: var(--white); color: var(--black); box-shadow: var(--brut); }
 .btn-outline:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--black); }
-.btn-ghost { background: rgba(255,255,255,.08); color: var(--white); border: 2px solid var(--white); }
+.btn-ghost { background: rgba(255,255,255,.15); color: var(--white); border: 2px solid var(--white); }
 .btn-danger { background: var(--black); color: var(--white); border-color: var(--white); box-shadow: var(--brut-w); }
 
 /* ============ TOPBAR ============ */
@@ -159,7 +165,7 @@ body {
   justify-content: center;
   border-radius: var(--r-sm);
   flex-shrink: 0;
-  pointer-events: auto;
+  pointer-events: auto !important;
   z-index: 2;
   position: relative;
 }
@@ -178,7 +184,7 @@ body {
   gap: 14px;
   background: var(--gray-8);
   position: relative;
-  z-index: 1;
+  z-index: 5;
 }
 
 /* ============ FIELD ============ */
@@ -247,8 +253,8 @@ body {
   font-weight: 900;
   letter-spacing: 2px;
   cursor: pointer;
-  z-index: 5;
-  pointer-events: auto;
+  z-index: 50;
+  pointer-events: auto !important;
 }
 
 /* ============ MAIN ============ */
@@ -359,7 +365,7 @@ body {
   background: var(--black);
   border-radius: 32px;
   box-shadow: 0 12px 32px rgba(0,0,0,.45), 0 0 0 2px rgba(255,255,255,.06);
-  z-index: 30;
+  z-index: 40;
 }
 .nav-btn {
   flex: 1;
@@ -375,7 +381,7 @@ body {
   border-radius: 20px;
   min-width: 0;
   position: relative;
-  pointer-events: auto;
+  pointer-events: auto !important;
   -webkit-appearance: none;
   appearance: none;
 }
@@ -407,7 +413,7 @@ body {
 .nav-btn:not(.active) .nav-label { opacity: .75; }
 
 /* ============ BUG PAGE ============ */
-.bug-page { flex: 1; display: flex; flex-direction: column; background: var(--gray-8); overflow: hidden; position: relative; z-index: 1; }
+.bug-page { flex: 1; display: flex; flex-direction: column; background: var(--gray-8); overflow: hidden; position: relative; z-index: 5; }
 .bug-header {
   display: flex; align-items: center; justify-content: space-between;
   gap: 10px; padding: 14px;
@@ -577,12 +583,4 @@ body {
 .white-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .sender-online-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  background: var(--black); color: var(--white);
-  border-radius: 999px; padding: 6px 12px;
-  font-size: 11px; font-weight: 800;
-}
-.online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--white); }
-
-.sender-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.mode-card {
-  background: var(--gray-8); border: 2px solid va
+  background: var(--black); color: var(--whit

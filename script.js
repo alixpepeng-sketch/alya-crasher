@@ -21,39 +21,50 @@ const PRICES = [
 ];
 
 const BUGS = [
-  { id: "delay", name: "DELAY", global: false },
-  { id: "fco", name: "FC ANDRO ORI", global: true },
-  { id: "fcb", name: "FC ANDRO BISNIS", global: true },
-  { id: "fcios", name: "FC IOS INVIS", global: false },
-  { id: "blank", name: "BLANK UI", global: false },
-  { id: "crash", name: "CRASH CLICK", global: false }
+  { id: "delay",  name: "DELAY",          global: false },
+  { id: "fco",    name: "FC ANDRO ORI",   global: true  },
+  { id: "fcb",    name: "FC ANDRO BISNIS",global: true  },
+  { id: "fcios",  name: "FC IOS INVIS",   global: false },
+  { id: "blank",  name: "BLANK UI",       global: false },
+  { id: "crash",  name: "CRASH CLICK",    global: false }
 ];
 
 let adminData = null;
 let sosmedData = null;
 
 /* ============ INIT ============ */
-async function init() {
-  await loadJSON();
+function init() {
+  loadJSON();
   buildPriceGrid();
   buildBugList();
   buildLinkGB();
   bindEvents();
   navigate("splash");
   startStats();
+  renderSenders();
+  updateSenderStatus();
 }
 
-async function loadJSON() {
-  try { adminData = await fetch("admin.json").then(r => r.json()); }
-  catch { adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } }; }
-  try { sosmedData = await fetch("sosmed.json").then(r => r.json()); }
-  catch {
-    sosmedData = {
-      links: [{ name: "TikTok", url: "#" }],
-      help: "#",
-      info: "Alya Crasher adalah sebuah Sistem yang di kembangkan oleh Alyz. Jangan lupa Follow @aizxstechu"
-    };
-  }
+function loadJSON() {
+  fetch("admin.json")
+    .then(r => r.json())
+    .then(d => { adminData = d; })
+    .catch(() => { adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } }; });
+
+  fetch("sosmed.json")
+    .then(r => r.json())
+    .then(d => {
+      sosmedData = d;
+      buildLinkGB();
+    })
+    .catch(() => {
+      sosmedData = {
+        links: [{ name: "TikTok", url: "#" }],
+        help: "#",
+        info: "Alya Crasher adalah sebuah Sistem yang di kembangkan oleh Alyz. Jangan lupa Follow @aizxstechu"
+      };
+      buildLinkGB();
+    });
 }
 
 /* ============ NAV ============ */
@@ -69,12 +80,13 @@ function navigate(id) {
 /* ============ BUILD PRICE ============ */
 function buildPriceGrid() {
   const grid = $("#priceGrid");
+  if (!grid) return;
   grid.innerHTML = "";
   PRICES.forEach(p => {
     const card = document.createElement("div");
     card.className = "price-card";
     card.dataset.id = p.id;
-    card.innerHTML = `<h4>${p.label}</h4><p>Rp ${p.price.toLocaleString("id-ID")}</p>`;
+    card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
     card.addEventListener("click", () => {
       $$(".price-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
@@ -84,12 +96,17 @@ function buildPriceGrid() {
   });
 
   const up = $("#uproleGrid");
-  up.innerHTML = grid.innerHTML;
-  up.querySelectorAll(".price-card").forEach((c, i) => {
-    c.addEventListener("click", () => {
+  if (!up) return;
+  up.innerHTML = "";
+  PRICES.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "price-card";
+    card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
+    card.addEventListener("click", () => {
       up.querySelectorAll(".price-card").forEach(x => x.classList.remove("selected"));
-      c.classList.add("selected");
+      card.classList.add("selected");
     });
+    up.appendChild(card);
   });
 }
 
@@ -98,40 +115,46 @@ function buildBugList() {
   const list = $("#bugList");
   if (!list) return;
   list.innerHTML = "";
-  BUGS.forEach(b => {
+
+  BUGS.forEach(function(b) {
     const card = document.createElement("div");
     card.className = "bug-option";
     card.dataset.id = b.id;
-    card.dataset.global = b.global;
+    card.dataset.global = String(b.global);
     card.dataset.name = b.name;
-    card.innerHTML = `
-      <div class="bug-opt-top">
-        <span class="bug-opt-icon">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </span>
-        <span class="bug-opt-check">&#10003;</span>
-      </div>
-      <div class="bug-opt-name">${b.name}</div>
-      <span class="bug-opt-tag">${b.id}</span>
-    `;
-    card.addEventListener("click", () => {
+    card.innerHTML =
+      '<div class="bug-opt-top">' +
+        '<span class="bug-opt-icon">' +
+          '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' +
+          '</svg>' +
+        '</span>' +
+        '<span class="bug-opt-check">&#10003;</span>' +
+      '</div>' +
+      '<div class="bug-opt-name">' + b.name + '</div>' +
+      '<span class="bug-opt-tag">' + b.id + '</span>';
+
+    card.addEventListener("click", function() {
       if (state.senderMode === "global" && !b.global) return;
       $$(".bug-option").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       state.selectedBug = b;
     });
+
     list.appendChild(card);
   });
+
   refreshBugAvailability();
 }
 
 function refreshBugAvailability() {
-  $$(".bug-option").forEach(card => {
+  $$(".bug-option").forEach(function(card) {
     const isGlobal = card.dataset.global === "true";
-    if (state.senderMode === "global" && !isGlobal) card.classList.add("disabled");
-    else card.classList.remove("disabled");
+    if (state.senderMode === "global" && !isGlobal) {
+      card.classList.add("disabled");
+    } else {
+      card.classList.remove("disabled");
+    }
     card.classList.remove("selected");
   });
   state.selectedBug = null;
@@ -140,8 +163,9 @@ function refreshBugAvailability() {
 /* ============ LINK GB ============ */
 function buildLinkGB() {
   const wrap = $("#linkgbList");
+  if (!wrap || !sosmedData) return;
   wrap.innerHTML = "";
-  (sosmedData.links || []).forEach(l => {
+  (sosmedData.links || []).forEach(function(l) {
     const a = document.createElement("a");
     a.href = l.url;
     a.target = "_blank";
@@ -150,18 +174,32 @@ function buildLinkGB() {
     a.textContent = l.name;
     wrap.appendChild(a);
   });
-  $("#panelInfoText").textContent = sosmedData.info || "";
-  $("#aboutInfo").textContent = sosmedData.info || "";
+  const infoText = $("#panelInfoText");
+  if (infoText) infoText.textContent = sosmedData.info || "";
+  const aboutInfo = $("#aboutInfo");
+  if (aboutInfo) aboutInfo.textContent = sosmedData.info || "";
 }
 
 /* ============ EVENTS ============ */
 function bindEvents() {
-  $$("[data-nav]").forEach(btn => btn.addEventListener("click", () => navigate(btn.dataset.nav)));
-  $$("[data-back]").forEach(btn => btn.addEventListener("click", () => navigate(btn.dataset.back)));
+  /* nav tombol splash */
+  $$("[data-nav]").forEach(function(btn) {
+    btn.addEventListener("click", function() { navigate(btn.dataset.nav); });
+  });
+  $$("[data-back]").forEach(function(btn) {
+    btn.addEventListener("click", function() { navigate(btn.dataset.back); });
+  });
 
-  $("#btnHelp").addEventListener("click", () => window.open(sosmedData.help || "#", "_blank"));
+  /* help */
+  const btnHelp = $("#btnHelp");
+  if (btnHelp) btnHelp.addEventListener("click", function() {
+    const url = (sosmedData && sosmedData.help) ? sosmedData.help : "#";
+    window.open(url, "_blank");
+  });
 
-  $("#btnBayar").addEventListener("click", () => {
+  /* bayar */
+  const btnBayar = $("#btnBayar");
+  if (btnBayar) btnBayar.addEventListener("click", function() {
     const u = $("#beliUser").value.trim();
     const p = $("#beliPass").value.trim();
     if (!state.selectedPrice) return alert("Pilih paket dulu");
@@ -169,41 +207,59 @@ function bindEvents() {
     openQris(state.selectedPrice);
   });
 
-  $("#qrisClose").addEventListener("click", () => $("#popupQris").classList.remove("open"));
+  const qrisClose = $("#qrisClose");
+  if (qrisClose) qrisClose.addEventListener("click", function() {
+    $("#popupQris").classList.remove("open");
+  });
 
-  $("#btnLogin").addEventListener("click", doLogin);
+  /* login */
+  const btnLogin = $("#btnLogin");
+  if (btnLogin) btnLogin.addEventListener("click", doLogin);
 
-  $("#btnSkip").addEventListener("click", () => {
+  /* skip anim */
+  const btnSkip = $("#btnSkip");
+  if (btnSkip) btnSkip.addEventListener("click", function() {
     stopGravity();
     navigate("main");
     updateProfileUI();
+    setNavActive("home");
   });
 
-  $("#btnDrawer").addEventListener("click", openDrawer);
-  $("#drawerOverlay").addEventListener("click", closeDrawer);
-  $$("[data-drawer]").forEach(btn => {
-    btn.addEventListener("click", () => {
+  /* drawer */
+  const btnDrawer = $("#btnDrawer");
+  if (btnDrawer) btnDrawer.addEventListener("click", openDrawer);
+  const drawerOverlay = $("#drawerOverlay");
+  if (drawerOverlay) drawerOverlay.addEventListener("click", closeDrawer);
+
+  $$("[data-drawer]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
       closeDrawer();
       openPanel(btn.dataset.drawer);
     });
   });
-  $$(".panel-close").forEach(btn => btn.addEventListener("click", () => btn.closest(".panel").classList.remove("open")));
+  $$(".panel-close").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      btn.closest(".panel").classList.remove("open");
+    });
+  });
 
-  $("#photoInput").addEventListener("change", (e) => {
+  /* foto profil */
+  const photoInput = $("#photoInput");
+  if (photoInput) photoInput.addEventListener("change", function(e) {
     const f = e.target.files[0];
     if (!f) return;
     const reader = new FileReader();
-    reader.onload = ev => {
+    reader.onload = function(ev) {
       $("#userPhoto").src = ev.target.result;
       state.photo = ev.target.result;
     };
     reader.readAsDataURL(f);
   });
 
-  $$("[data-nav2]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      $$(".nav-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+  /* bottom nav */
+  $$("[data-nav2]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      setNavActive(btn.dataset.nav2);
       const t = btn.dataset.nav2;
       if (t === "home") navigate("main");
       else if (t === "bug") navigate("bug");
@@ -212,63 +268,102 @@ function bindEvents() {
     });
   });
 
-  $$(".mode-card").forEach(box => {
-    box.addEventListener("click", () => {
-      $$(".mode-card").forEach(b => b.classList.remove("active"));
-      box.classList.add("active");
-      state.senderMode = box.dataset.mode;
+  /* PILIH SENDER — pribadi / global (event delegation) */
+  const senderModeWrap = $("#senderMode");
+  if (senderModeWrap) {
+    senderModeWrap.addEventListener("click", function(e) {
+      const card = e.target.closest(".mode-card");
+      if (!card) return;
+      const mode = card.dataset.mode;
+      $$(".mode-card").forEach(function(b) { b.classList.remove("active"); });
+      card.classList.add("active");
+      state.senderMode = mode;
       refreshBugAvailability();
       updateSenderStatus();
     });
+  }
+
+  /* kirim bug */
+  const btnKirimBug = $("#btnKirimBug");
+  if (btnKirimBug) btnKirimBug.addEventListener("click", kirimBug);
+
+  const sentOk = $("#sentOk");
+  if (sentOk) sentOk.addEventListener("click", function() {
+    $("#popupSent").classList.remove("open");
   });
 
-  $("#btnKirimBug").addEventListener("click", kirimBug);
-  $("#sentOk").addEventListener("click", () => $("#popupSent").classList.remove("open"));
-
-  $("#senderBack").addEventListener("click", () => {
+  /* sender page */
+  const senderBack = $("#senderBack");
+  if (senderBack) senderBack.addEventListener("click", function() {
     navigate("main");
-    $$(".nav-btn").forEach(b => b.classList.remove("active"));
-    const homeBtn = document.querySelector('[data-nav2="home"]');
-    if (homeBtn) homeBtn.classList.add("active");
+    setNavActive("home");
   });
-  $("#btnTambahSender").addEventListener("click", () => {
+
+  const btnTambahSender = $("#btnTambahSender");
+  if (btnTambahSender) btnTambahSender.addEventListener("click", function() {
     $("#senderInputWrap").style.display = "block";
     $("#senderNomor").value = "";
   });
-  $("#btnOkeSender").addEventListener("click", () => {
+
+  const btnOkeSender = $("#btnOkeSender");
+  if (btnOkeSender) btnOkeSender.addEventListener("click", function() {
     const n = $("#senderNomor").value.trim();
     if (!/^[0-9]{8,15}$/.test(n)) return alert("Nomor tidak valid");
     openSenderCode(n);
   });
-  $("#codeClose").addEventListener("click", () => $("#popupSenderCode").classList.remove("open"));
-  $("#codeRefresh").addEventListener("click", generateSenderCode);
 
-  $("#settingBack").addEventListener("click", () => {
-    navigate("main");
-    $$(".nav-btn").forEach(b => b.classList.remove("active"));
-    const homeBtn = document.querySelector('[data-nav2="home"]');
-    if (homeBtn) homeBtn.classList.add("active");
+  const codeClose = $("#codeClose");
+  if (codeClose) codeClose.addEventListener("click", function() {
+    $("#popupSenderCode").classList.remove("open");
   });
-  $("#btnLogout").addEventListener("click", logout);
-  $("#btnGantiAkun").addEventListener("click", () => alert("Fitur ganti akun"));
-  $("#btnGantiPass").addEventListener("click", () => alert("Fitur ganti password"));
+  const codeRefresh = $("#codeRefresh");
+  if (codeRefresh) codeRefresh.addEventListener("click", generateSenderCode);
 
-  $("#togglePass").addEventListener("click", () => {
+  /* setting */
+  const settingBack = $("#settingBack");
+  if (settingBack) settingBack.addEventListener("click", function() {
+    navigate("main");
+    setNavActive("home");
+  });
+  const btnLogout = $("#btnLogout");
+  if (btnLogout) btnLogout.addEventListener("click", logout);
+  const btnGantiAkun = $("#btnGantiAkun");
+  if (btnGantiAkun) btnGantiAkun.addEventListener("click", function() { alert("Fitur ganti akun"); });
+  const btnGantiPass = $("#btnGantiPass");
+  if (btnGantiPass) btnGantiPass.addEventListener("click", function() { alert("Fitur ganti password"); });
+
+  /* toggle pass */
+  const togglePass = $("#togglePass");
+  if (togglePass) togglePass.addEventListener("click", function() {
     const el = $("#profilPass");
     el.type = el.type === "password" ? "text" : "password";
   });
 
-  $("#btnSaveTarget").addEventListener("click", () => {
+  /* save target */
+  const btnSaveTarget = $("#btnSaveTarget");
+  if (btnSaveTarget) btnSaveTarget.addEventListener("click", function() {
     const n = $("#targetNomor").value.trim();
     if (!/^[0-9]{8,15}$/.test(n)) return alert("Nomor tidak valid");
     localStorage.setItem("target", n);
     alert("Target disimpan: " + n);
   });
-  $("#bugPin").addEventListener("click", () => alert("Pin"));
-  $("#bugHistory").addEventListener("click", () => alert("History"));
-  $("#senderRefresh").addEventListener("click", () => {
+
+  const bugPin = $("#bugPin");
+  if (bugPin) bugPin.addEventListener("click", function() { alert("Pin"); });
+  const bugHistory = $("#bugHistory");
+  if (bugHistory) bugHistory.addEventListener("click", function() { alert("History"); });
+
+  const senderRefresh = $("#senderRefresh");
+  if (senderRefresh) senderRefresh.addEventListener("click", function() {
     renderSenders();
     updateSenderStatus();
+  });
+}
+
+/* set nav active */
+function setNavActive(name) {
+  $$(".nav-btn").forEach(function(b) {
+    b.classList.toggle("active", b.dataset.nav2 === name);
   });
 }
 
@@ -287,14 +382,19 @@ function doLogin() {
   const err = $("#loginError");
   err.textContent = "";
 
-  if (adminData && adminData.admin && u === adminData.admin.username && p === adminData.admin.password) {
+  if (!adminData) {
+    adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } };
+  }
+
+  if (u === adminData.admin.username && p === adminData.admin.password) {
     state.user = { username: u, password: p, role: adminData.admin.role };
     navigate("anim");
     startGravity();
     return;
   }
 
-  const stored = JSON.parse(localStorage.getItem("users") || "[]");
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem("users") || "[]"); } catch(e) { stored = []; }
   const found = stored.find(x => x.username === u && x.password === p);
   if (found) {
     state.user = found;
@@ -302,6 +402,7 @@ function doLogin() {
     startGravity();
     return;
   }
+
   err.textContent = "Username atau password salah";
 }
 
@@ -341,7 +442,7 @@ function startGravity() {
     const h = canvas.height;
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fillRect(0, 0, w, h);
-    particles.forEach(p => {
+    particles.forEach(function(p) {
       p.x += p.vx; p.y += p.vy; p.z += p.vz;
       if (p.z < 50) p.z = 50;
       if (p.z > 1200) p.z = 1200;
@@ -356,7 +457,7 @@ function startGravity() {
       if (r > 0.2 && px > 0 && px < w && py > 0 && py < h) {
         ctx.beginPath();
         ctx.arc(px, py, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${Math.min(1, scale * 2)})`;
+        ctx.fillStyle = "rgba(255,255,255," + Math.min(1, scale * 2) + ")";
         ctx.fill();
       }
     });
@@ -364,6 +465,7 @@ function startGravity() {
       stopGravity();
       navigate("main");
       updateProfileUI();
+      setNavActive("home");
       return;
     }
     gravityRAF = requestAnimationFrame(loop);
@@ -378,16 +480,16 @@ function stopGravity() {
 
 /* ============ SENDER CODE ============ */
 function generateSenderCode() {
-  const seg = () => Math.random().toString(36).toUpperCase().slice(2, 6).padEnd(4, "X");
-  $("#senderCode").textContent = `${seg()}-${seg()}`;
+  const seg = function() { return Math.random().toString(36).toUpperCase().slice(2, 6).padEnd(4, "X"); };
+  $("#senderCode").textContent = seg() + "-" + seg();
 }
 
 function openSenderCode(nomor) {
   generateSenderCode();
   $("#popupSenderCode").classList.add("open");
-  setTimeout(() => {
+  setTimeout(function() {
     if (!state.senders.find(s => s.nomor === nomor)) {
-      state.senders.push({ nomor, online: true });
+      state.senders.push({ nomor: nomor, online: true });
       renderSenders();
       updateSenderStatus();
     }
@@ -396,19 +498,19 @@ function openSenderCode(nomor) {
 
 function renderSenders() {
   const wrap = $("#senderList");
+  if (!wrap) return;
   wrap.innerHTML = "";
   if (!state.senders.length) {
-    wrap.innerHTML = `<div class="sender-item"><div><span class="status-dot"></span>Belum ada sender</div></div>`;
+    wrap.innerHTML = '<div class="sender-item"><div><span class="status-dot"></span>Belum ada sender</div></div>';
     return;
   }
-  state.senders.forEach((s, i) => {
+  state.senders.forEach(function(s, i) {
     const div = document.createElement("div");
     div.className = "sender-item";
-    div.innerHTML = `
-      <div><span class="status-dot"></span>${s.nomor}</div>
-      <button class="del-btn" data-i="${i}">HAPUS</button>
-    `;
-    div.querySelector(".del-btn").addEventListener("click", () => {
+    div.innerHTML =
+      '<div><span class="status-dot"></span>' + s.nomor + '</div>' +
+      '<button type="button" class="del-btn" data-i="' + i + '">HAPUS</button>';
+    div.querySelector(".del-btn").addEventListener("click", function() {
       state.senders.splice(i, 1);
       renderSenders();
       updateSenderStatus();
@@ -418,9 +520,6 @@ function renderSenders() {
 }
 
 function updateSenderStatus() {
-  const on = state.senders.some(s => s.online);
-  const ss = $("#senderStatus");
-  if (ss) ss.textContent = `STATUS SENDER: ${on ? "ON" : "OFF"}`;
   const st = $("#statSender");
   if (st) st.textContent = state.senders.length;
   const sub = $("#globalSenderSub");
@@ -440,7 +539,7 @@ function kirimBug() {
   $("#popupCountdown").classList.add("open");
   let n = 8;
   $("#countdownNum").textContent = n;
-  const iv = setInterval(() => {
+  const iv = setInterval(function() {
     n--;
     $("#countdownNum").textContent = n;
     $("#countdownNum").style.animation = "none";
@@ -449,7 +548,7 @@ function kirimBug() {
     if (n <= 0) {
       clearInterval(iv);
       $("#popupCountdown").classList.remove("open");
-      $("#sentText").textContent = `Terkirim. ${state.selectedBug.name} telah di kirim cek history bug untuk melihat status pengiriman`;
+      $("#sentText").textContent = "Terkirim. " + state.selectedBug.name + " telah di kirim cek history bug untuk melihat status pengiriman";
       $("#popupSent").classList.add("open");
     }
   }, 1000);
@@ -461,8 +560,10 @@ function openDrawer() {
   $("#drawerOverlay").classList.add("open");
 }
 function closeDrawer() {
-  $("#drawer").classList.remove("open");
-  $("#drawerOverlay").classList.remove("open");
+  const d = $("#drawer");
+  const o = $("#drawerOverlay");
+  if (d) d.classList.remove("open");
+  if (o) o.classList.remove("open");
 }
 function openPanel(name) {
   const p = document.getElementById("panel-" + name);
@@ -474,9 +575,7 @@ function openPanel(name) {
 function logout() {
   state.user = null;
   navigate("splash");
-  $$(".nav-btn").forEach(b => b.classList.remove("active"));
-  const home = document.querySelector('[data-nav2="home"]');
-  if (home) home.classList.add("active");
+  setNavActive("home");
   $("#loginUser").value = "";
   $("#loginPass").value = "";
   $("#loginError").textContent = "";
@@ -484,12 +583,11 @@ function logout() {
 
 /* ============ STATS ============ */
 function startStats() {
-  setInterval(() => {
+  setInterval(function() {
     const online = Math.floor(Math.random() * 40) + 10;
-    const sender = state.senders.length;
     const cpu = Math.floor(Math.random() * 60) + 20;
     const s1 = $("#statOnline"); if (s1) s1.textContent = online;
-    const s2 = $("#statSender"); if (s2) s2.textContent = sender;
+    const s2 = $("#statSender"); if (s2) s2.textContent = state.senders.length;
     const s3 = $("#statCpu"); if (s3) s3.textContent = cpu + "%";
   }, 3000);
 }

@@ -3,10 +3,12 @@ const $$ = (s) => document.querySelectorAll(s);
 
 const state = {
   user: null,
+  photo: null,
   selectedPrice: null,
   selectedBug: null,
   senderMode: "pribadi",
-  senders: []
+  senders: [],
+  currentScreen: "splash"
 };
 
 const PRICES = [
@@ -19,23 +21,23 @@ const PRICES = [
 ];
 
 const BUGS = [
-  { id: "delay",  name: "DELAY",           global: false },
-  { id: "fco",    name: "FC ANDRO ORI",    global: true  },
-  { id: "fcb",    name: "FC ANDRO BISNIS", global: true  },
-  { id: "fcios",  name: "FC IOS INVIS",    global: false },
-  { id: "blank",  name: "BLANK UI",        global: false },
-  { id: "crash",  name: "CRASH CLICK",     global: false }
+  { id: "delay",  name: "DELAY",          global: false },
+  { id: "fco",    name: "FC ANDRO ORI",   global: true  },
+  { id: "fcb",    name: "FC ANDRO BISNIS",global: true  },
+  { id: "fcios",  name: "FC IOS INVIS",   global: false },
+  { id: "blank",  name: "BLANK UI",       global: false },
+  { id: "crash",  name: "CRASH CLICK",    global: false }
 ];
 
 let adminData = null;
 let sosmedData = null;
-let gravityRAF = null;
 
 /* ============ INIT ============ */
 function init() {
   loadJSON();
   buildPriceGrid();
   buildBugList();
+  buildLinkGB();
   bindEvents();
   navigate("splash");
   startStats();
@@ -45,14 +47,17 @@ function init() {
 
 function loadJSON() {
   fetch("admin.json")
-    .then(function(r) { return r.json(); })
-    .then(function(d) { adminData = d; })
-    .catch(function() { adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } }; });
+    .then(r => r.json())
+    .then(d => { adminData = d; })
+    .catch(() => { adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } }; });
 
   fetch("sosmed.json")
-    .then(function(r) { return r.json(); })
-    .then(function(d) { sosmedData = d; buildLinkGB(); })
-    .catch(function() {
+    .then(r => r.json())
+    .then(d => {
+      sosmedData = d;
+      buildLinkGB();
+    })
+    .catch(() => {
       sosmedData = {
         links: [{ name: "TikTok", url: "#" }],
         help: "#",
@@ -64,45 +69,45 @@ function loadJSON() {
 
 /* ============ NAV ============ */
 function navigate(id) {
-  $$(".screen").forEach(function(s) { s.classList.remove("active"); });
+  $$(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById("screen-" + id);
   if (el) el.classList.add("active");
-  $$(".panel").forEach(function(p) { p.classList.remove("open"); });
+  state.currentScreen = id;
+  $$(".panel").forEach(p => p.classList.remove("open"));
   closeDrawer();
 }
 
 /* ============ BUILD PRICE ============ */
 function buildPriceGrid() {
   const grid = $("#priceGrid");
-  if (grid) {
-    grid.innerHTML = "";
-    PRICES.forEach(function(p) {
-      const card = document.createElement("div");
-      card.className = "price-card";
-      card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
-      card.addEventListener("click", function() {
-        grid.querySelectorAll(".price-card").forEach(function(c) { c.classList.remove("selected"); });
-        card.classList.add("selected");
-        state.selectedPrice = p;
-      });
-      grid.appendChild(card);
+  if (!grid) return;
+  grid.innerHTML = "";
+  PRICES.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "price-card";
+    card.dataset.id = p.id;
+    card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
+    card.addEventListener("click", () => {
+      $$(".price-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      state.selectedPrice = p;
     });
-  }
+    grid.appendChild(card);
+  });
 
   const up = $("#uproleGrid");
-  if (up) {
-    up.innerHTML = "";
-    PRICES.forEach(function(p) {
-      const card = document.createElement("div");
-      card.className = "price-card";
-      card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
-      card.addEventListener("click", function() {
-        up.querySelectorAll(".price-card").forEach(function(x) { x.classList.remove("selected"); });
-        card.classList.add("selected");
-      });
-      up.appendChild(card);
+  if (!up) return;
+  up.innerHTML = "";
+  PRICES.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "price-card";
+    card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
+    card.addEventListener("click", () => {
+      up.querySelectorAll(".price-card").forEach(x => x.classList.remove("selected"));
+      card.classList.add("selected");
     });
-  }
+    up.appendChild(card);
+  });
 }
 
 /* ============ BUILD BUG ============ */
@@ -131,7 +136,7 @@ function buildBugList() {
 
     card.addEventListener("click", function() {
       if (state.senderMode === "global" && !b.global) return;
-      $$(".bug-option").forEach(function(c) { c.classList.remove("selected"); });
+      $$(".bug-option").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       state.selectedBug = b;
     });
@@ -177,6 +182,7 @@ function buildLinkGB() {
 
 /* ============ EVENTS ============ */
 function bindEvents() {
+  /* nav tombol splash */
   $$("[data-nav]").forEach(function(btn) {
     btn.addEventListener("click", function() { navigate(btn.dataset.nav); });
   });
@@ -184,12 +190,14 @@ function bindEvents() {
     btn.addEventListener("click", function() { navigate(btn.dataset.back); });
   });
 
+  /* help */
   const btnHelp = $("#btnHelp");
   if (btnHelp) btnHelp.addEventListener("click", function() {
     const url = (sosmedData && sosmedData.help) ? sosmedData.help : "#";
     window.open(url, "_blank");
   });
 
+  /* bayar */
   const btnBayar = $("#btnBayar");
   if (btnBayar) btnBayar.addEventListener("click", function() {
     const u = $("#beliUser").value.trim();
@@ -204,16 +212,20 @@ function bindEvents() {
     $("#popupQris").classList.remove("open");
   });
 
+  /* login */
   const btnLogin = $("#btnLogin");
   if (btnLogin) btnLogin.addEventListener("click", doLogin);
 
+  /* skip anim */
   const btnSkip = $("#btnSkip");
   if (btnSkip) btnSkip.addEventListener("click", function() {
     stopGravity();
     navigate("main");
     updateProfileUI();
+    setNavActive("home");
   });
 
+  /* drawer */
   const btnDrawer = $("#btnDrawer");
   if (btnDrawer) btnDrawer.addEventListener("click", openDrawer);
   const drawerOverlay = $("#drawerOverlay");
@@ -227,25 +239,27 @@ function bindEvents() {
   });
   $$(".panel-close").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      const p = btn.closest(".panel");
-      if (p) p.classList.remove("open");
+      btn.closest(".panel").classList.remove("open");
     });
   });
 
+  /* foto profil */
   const photoInput = $("#photoInput");
   if (photoInput) photoInput.addEventListener("change", function(e) {
     const f = e.target.files[0];
     if (!f) return;
     const reader = new FileReader();
     reader.onload = function(ev) {
-      const heroPhoto = $("#userPhotoHero");
-      if (heroPhoto) heroPhoto.src = ev.target.result;
+      $("#userPhoto").src = ev.target.result;
+      state.photo = ev.target.result;
     };
     reader.readAsDataURL(f);
   });
 
+  /* bottom nav */
   $$("[data-nav2]").forEach(function(btn) {
     btn.addEventListener("click", function() {
+      setNavActive(btn.dataset.nav2);
       const t = btn.dataset.nav2;
       if (t === "home") navigate("main");
       else if (t === "bug") navigate("bug");
@@ -254,6 +268,7 @@ function bindEvents() {
     });
   });
 
+  /* PILIH SENDER — pribadi / global (event delegation) */
   const senderModeWrap = $("#senderMode");
   if (senderModeWrap) {
     senderModeWrap.addEventListener("click", function(e) {
@@ -268,6 +283,7 @@ function bindEvents() {
     });
   }
 
+  /* kirim bug */
   const btnKirimBug = $("#btnKirimBug");
   if (btnKirimBug) btnKirimBug.addEventListener("click", kirimBug);
 
@@ -276,17 +292,17 @@ function bindEvents() {
     $("#popupSent").classList.remove("open");
   });
 
+  /* sender page */
   const senderBack = $("#senderBack");
   if (senderBack) senderBack.addEventListener("click", function() {
     navigate("main");
+    setNavActive("home");
   });
 
   const btnTambahSender = $("#btnTambahSender");
   if (btnTambahSender) btnTambahSender.addEventListener("click", function() {
-    const w = $("#senderInputWrap");
-    if (w) w.style.display = "block";
-    const sn = $("#senderNomor");
-    if (sn) sn.value = "";
+    $("#senderInputWrap").style.display = "block";
+    $("#senderNomor").value = "";
   });
 
   const btnOkeSender = $("#btnOkeSender");
@@ -303,11 +319,12 @@ function bindEvents() {
   const codeRefresh = $("#codeRefresh");
   if (codeRefresh) codeRefresh.addEventListener("click", generateSenderCode);
 
+  /* setting */
   const settingBack = $("#settingBack");
   if (settingBack) settingBack.addEventListener("click", function() {
     navigate("main");
+    setNavActive("home");
   });
-
   const btnLogout = $("#btnLogout");
   if (btnLogout) btnLogout.addEventListener("click", logout);
   const btnGantiAkun = $("#btnGantiAkun");
@@ -315,12 +332,14 @@ function bindEvents() {
   const btnGantiPass = $("#btnGantiPass");
   if (btnGantiPass) btnGantiPass.addEventListener("click", function() { alert("Fitur ganti password"); });
 
+  /* toggle pass */
   const togglePass = $("#togglePass");
   if (togglePass) togglePass.addEventListener("click", function() {
     const el = $("#profilPass");
     el.type = el.type === "password" ? "text" : "password";
   });
 
+  /* save target */
   const btnSaveTarget = $("#btnSaveTarget");
   if (btnSaveTarget) btnSaveTarget.addEventListener("click", function() {
     const n = $("#targetNomor").value.trim();
@@ -338,6 +357,13 @@ function bindEvents() {
   if (senderRefresh) senderRefresh.addEventListener("click", function() {
     renderSenders();
     updateSenderStatus();
+  });
+}
+
+/* set nav active */
+function setNavActive(name) {
+  $$(".nav-btn").forEach(function(b) {
+    b.classList.toggle("active", b.dataset.nav2 === name);
   });
 }
 
@@ -369,7 +395,7 @@ function doLogin() {
 
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem("users") || "[]"); } catch(e) { stored = []; }
-  const found = stored.find(function(x) { return x.username === u && x.password === p; });
+  const found = stored.find(x => x.username === u && x.password === p);
   if (found) {
     state.user = found;
     navigate("anim");
@@ -382,25 +408,23 @@ function doLogin() {
 
 function updateProfileUI() {
   if (!state.user) return;
-  const uname = state.user.username.toUpperCase();
-  const role = (state.user.role || "User").toUpperCase();
-
-  const hn = $("#heroName"); if (hn) hn.textContent = uname;
-  const hr = $("#heroRole"); if (hr) hr.textContent = role;
-
-  const pu = $("#profilUser"); if (pu) pu.value = state.user.username;
-  const pp = $("#profilPass"); if (pp) pp.value = state.user.password;
+  $("#profileName").textContent = state.user.username.toUpperCase();
+  $("#profileRole").textContent = state.user.role || "User";
+  $("#profilUser").value = state.user.username;
+  $("#profilPass").value = state.user.password;
 }
 
-/* ============ GRAVITY ANIM ============ */
+/* ============ GRAVITY 3D ============ */
+let gravityRAF = null;
+let particles = [];
+
 function startGravity() {
   const canvas = $("#gravityCanvas");
-  if (!canvas) return;
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext("2d");
-  const particles = [];
-  for (let i = 0; i < 100; i++) {
+  particles = [];
+  for (let i = 0; i < 120; i++) {
     particles.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -437,10 +461,11 @@ function startGravity() {
         ctx.fill();
       }
     });
-    if (frame >= 400) {
+    if (frame >= 420) {
       stopGravity();
       navigate("main");
       updateProfileUI();
+      setNavActive("home");
       return;
     }
     gravityRAF = requestAnimationFrame(loop);
@@ -463,7 +488,7 @@ function openSenderCode(nomor) {
   generateSenderCode();
   $("#popupSenderCode").classList.add("open");
   setTimeout(function() {
-    if (!state.senders.find(function(s) { return s.nomor === nomor; })) {
+    if (!state.senders.find(s => s.nomor === nomor)) {
       state.senders.push({ nomor: nomor, online: true });
       renderSenders();
       updateSenderStatus();
@@ -495,10 +520,14 @@ function renderSenders() {
 }
 
 function updateSenderStatus() {
-  const st = $("#statSender"); if (st) st.textContent = state.senders.length;
-  const sub = $("#globalSenderSub"); if (sub) sub.textContent = state.senders.length + " sender";
-  const onl = $("#senderOnlineCount"); if (onl) onl.textContent = state.senders.length;
-  const pr = $("#pribadiSub"); if (pr) pr.textContent = state.senders.length ? state.senders.length + " sender" : "Kosong";
+  const st = $("#statSender");
+  if (st) st.textContent = state.senders.length;
+  const sub = $("#globalSenderSub");
+  if (sub) sub.textContent = state.senders.length + " sender";
+  const onl = $("#senderOnlineCount");
+  if (onl) onl.textContent = state.senders.length;
+  const pr = $("#pribadiSub");
+  if (pr) pr.textContent = state.senders.length ? state.senders.length + " sender" : "Kosong";
 }
 
 /* ============ KIRIM BUG ============ */
@@ -513,6 +542,9 @@ function kirimBug() {
   const iv = setInterval(function() {
     n--;
     $("#countdownNum").textContent = n;
+    $("#countdownNum").style.animation = "none";
+    void $("#countdownNum").offsetWidth;
+    $("#countdownNum").style.animation = "popNum .35s ease";
     if (n <= 0) {
       clearInterval(iv);
       $("#popupCountdown").classList.remove("open");
@@ -524,12 +556,14 @@ function kirimBug() {
 
 /* ============ DRAWER / PANEL ============ */
 function openDrawer() {
-  const d = $("#drawer"); if (d) d.classList.add("open");
-  const o = $("#drawerOverlay"); if (o) o.classList.add("open");
+  $("#drawer").classList.add("open");
+  $("#drawerOverlay").classList.add("open");
 }
 function closeDrawer() {
-  const d = $("#drawer"); if (d) d.classList.remove("open");
-  const o = $("#drawerOverlay"); if (o) o.classList.remove("open");
+  const d = $("#drawer");
+  const o = $("#drawerOverlay");
+  if (d) d.classList.remove("open");
+  if (o) o.classList.remove("open");
 }
 function openPanel(name) {
   const p = document.getElementById("panel-" + name);
@@ -537,26 +571,24 @@ function openPanel(name) {
   if (name === "profil") updateProfileUI();
 }
 
-/* ============ LOGOUT ============ */
+/* ============ SETTING ============ */
 function logout() {
   state.user = null;
   navigate("splash");
-  const lu = $("#loginUser"); if (lu) lu.value = "";
-  const lp = $("#loginPass"); if (lp) lp.value = "";
-  const le = $("#loginError"); if (le) le.textContent = "";
+  setNavActive("home");
+  $("#loginUser").value = "";
+  $("#loginPass").value = "";
+  $("#loginError").textContent = "";
 }
 
 /* ============ STATS ============ */
 function startStats() {
   setInterval(function() {
-    const online = Math.floor(Math.random() * 900) + 100;
-    const cpu = (Math.random() * 2 + 0.5).toFixed(2);
-    const ramUsed = (Math.random() * 10 + 3).toFixed(1);
-
+    const online = Math.floor(Math.random() * 40) + 10;
+    const cpu = Math.floor(Math.random() * 60) + 20;
     const s1 = $("#statOnline"); if (s1) s1.textContent = online;
     const s2 = $("#statSender"); if (s2) s2.textContent = state.senders.length;
-    const v1 = $("#vpsRam1"); if (v1) v1.textContent = ramUsed + "GB/35.2GB";
-    const v2 = $("#vpsCpu1"); if (v2) v2.textContent = cpu;
+    const s3 = $("#statCpu"); if (s3) s3.textContent = cpu + "%";
   }, 3000);
 }
 

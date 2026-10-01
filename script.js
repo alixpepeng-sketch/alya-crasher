@@ -1,12 +1,10 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
-// ============ STATE ============
 const state = {
   user: null,
   photo: null,
   selectedPrice: null,
-  qrisIndex: 1,
   selectedBug: null,
   senderMode: "pribadi",
   senders: [],
@@ -34,7 +32,7 @@ const BUGS = [
 let adminData = null;
 let sosmedData = null;
 
-// ============ INIT ============
+/* ============ INIT ============ */
 async function init() {
   await loadJSON();
   buildPriceGrid();
@@ -46,31 +44,29 @@ async function init() {
 }
 
 async function loadJSON() {
-  try {
-    adminData = await fetch("admin.json").then(r => r.json());
-  } catch {
-    adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } };
-  }
-  try {
-    sosmedData = await fetch("sosmed.json").then(r => r.json());
-  } catch {
+  try { adminData = await fetch("admin.json").then(r => r.json()); }
+  catch { adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } }; }
+  try { sosmedData = await fetch("sosmed.json").then(r => r.json()); }
+  catch {
     sosmedData = {
       links: [{ name: "TikTok", url: "#" }],
       help: "#",
-      info: "Alya Crasher adalah sebuah Sistem yang di kembangkan oleh Alyz."
+      info: "Alya Crasher adalah sebuah Sistem yang di kembangkan oleh Alyz. Jangan lupa Follow @aizxstechu"
     };
   }
 }
 
-// ============ NAVIGATION ============
+/* ============ NAV ============ */
 function navigate(id) {
   $$(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById("screen-" + id);
   if (el) el.classList.add("active");
   state.currentScreen = id;
+  $$(".panel").forEach(p => p.classList.remove("open"));
+  closeDrawer();
 }
 
-// ============ BUILD PRICE ============
+/* ============ BUILD PRICE ============ */
 function buildPriceGrid() {
   const grid = $("#priceGrid");
   grid.innerHTML = "";
@@ -97,19 +93,32 @@ function buildPriceGrid() {
   });
 }
 
-// ============ BUILD BUG ============
+/* ============ BUILD BUG ============ */
 function buildBugList() {
   const list = $("#bugList");
+  if (!list) return;
   list.innerHTML = "";
   BUGS.forEach(b => {
     const card = document.createElement("div");
-    card.className = "bug-card";
+    card.className = "bug-option";
     card.dataset.id = b.id;
     card.dataset.global = b.global;
-    card.textContent = b.name;
+    card.dataset.name = b.name;
+    card.innerHTML = `
+      <div class="bug-opt-top">
+        <span class="bug-opt-icon">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </span>
+        <span class="bug-opt-check">&#10003;</span>
+      </div>
+      <div class="bug-opt-name">${b.name}</div>
+      <span class="bug-opt-tag">${b.id}</span>
+    `;
     card.addEventListener("click", () => {
       if (state.senderMode === "global" && !b.global) return;
-      $$(".bug-card").forEach(c => c.classList.remove("selected"));
+      $$(".bug-option").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       state.selectedBug = b;
     });
@@ -119,19 +128,16 @@ function buildBugList() {
 }
 
 function refreshBugAvailability() {
-  $$(".bug-card").forEach(card => {
+  $$(".bug-option").forEach(card => {
     const isGlobal = card.dataset.global === "true";
-    if (state.senderMode === "global" && !isGlobal) {
-      card.classList.add("disabled");
-    } else {
-      card.classList.remove("disabled");
-    }
+    if (state.senderMode === "global" && !isGlobal) card.classList.add("disabled");
+    else card.classList.remove("disabled");
     card.classList.remove("selected");
   });
   state.selectedBug = null;
 }
 
-// ============ BUILD LINK GB ============
+/* ============ LINK GB ============ */
 function buildLinkGB() {
   const wrap = $("#linkgbList");
   wrap.innerHTML = "";
@@ -140,9 +146,7 @@ function buildLinkGB() {
     a.href = l.url;
     a.target = "_blank";
     a.className = "btn btn-outline";
-    a.style.textAlign = "center";
-    a.style.textDecoration = "none";
-    a.style.display = "block";
+    a.style.cssText = "text-align:center; text-decoration:none; display:block; max-width:100%;";
     a.textContent = l.name;
     wrap.appendChild(a);
   });
@@ -150,24 +154,13 @@ function buildLinkGB() {
   $("#aboutInfo").textContent = sosmedData.info || "";
 }
 
-// ============ EVENTS ============
+/* ============ EVENTS ============ */
 function bindEvents() {
-  // Splash nav
-  document.querySelectorAll("[data-nav]").forEach(btn => {
-    btn.addEventListener("click", () => navigate(btn.dataset.nav));
-  });
+  $$("[data-nav]").forEach(btn => btn.addEventListener("click", () => navigate(btn.dataset.nav)));
+  $$("[data-back]").forEach(btn => btn.addEventListener("click", () => navigate(btn.dataset.back)));
 
-  // Back button
-  document.querySelectorAll("[data-back]").forEach(btn => {
-    btn.addEventListener("click", () => navigate(btn.dataset.back));
-  });
+  $("#btnHelp").addEventListener("click", () => window.open(sosmedData.help || "#", "_blank"));
 
-  // Help
-  $("#btnHelp").addEventListener("click", () => {
-    window.open(sosmedData.help || "#", "_blank");
-  });
-
-  // Bayar
   $("#btnBayar").addEventListener("click", () => {
     const u = $("#beliUser").value.trim();
     const p = $("#beliPass").value.trim();
@@ -176,35 +169,26 @@ function bindEvents() {
     openQris(state.selectedPrice);
   });
 
-  // QRIS close
-  $("#qrisClose").addEventListener("click", () => {
-    $("#popupQris").classList.remove("open");
-  });
+  $("#qrisClose").addEventListener("click", () => $("#popupQris").classList.remove("open"));
 
-  // Login
   $("#btnLogin").addEventListener("click", doLogin);
 
-  // Animasi skip
   $("#btnSkip").addEventListener("click", () => {
     stopGravity();
     navigate("main");
     updateProfileUI();
   });
 
-  // Drawer
   $("#btnDrawer").addEventListener("click", openDrawer);
   $("#drawerOverlay").addEventListener("click", closeDrawer);
-  document.querySelectorAll("[data-drawer]").forEach(btn => {
+  $$("[data-drawer]").forEach(btn => {
     btn.addEventListener("click", () => {
       closeDrawer();
       openPanel(btn.dataset.drawer);
     });
   });
-  document.querySelectorAll(".panel-close").forEach(btn => {
-    btn.addEventListener("click", () => btn.closest(".panel").classList.remove("open"));
-  });
+  $$(".panel-close").forEach(btn => btn.addEventListener("click", () => btn.closest(".panel").classList.remove("open")));
 
-  // Foto profil
   $("#photoInput").addEventListener("change", (e) => {
     const f = e.target.files[0];
     if (!f) return;
@@ -216,10 +200,9 @@ function bindEvents() {
     reader.readAsDataURL(f);
   });
 
-  // Bottom nav
-  document.querySelectorAll("[data-nav2]").forEach(btn => {
+  $$("[data-nav2]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      $$(".nav-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       const t = btn.dataset.nav2;
       if (t === "home") navigate("main");
@@ -229,17 +212,9 @@ function bindEvents() {
     });
   });
 
-  // Bug screen
-  $("#bugBack").addEventListener("click", () => {
-    navigate("main");
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-    document.querySelector('[data-nav2="home"]').classList.add("active");
-  });
-
-  // Sender mode
-  document.querySelectorAll(".mode-box").forEach(box => {
+  $$(".mode-card").forEach(box => {
     box.addEventListener("click", () => {
-      document.querySelectorAll(".mode-box").forEach(b => b.classList.remove("active"));
+      $$(".mode-card").forEach(b => b.classList.remove("active"));
       box.classList.add("active");
       state.senderMode = box.dataset.mode;
       refreshBugAvailability();
@@ -247,16 +222,15 @@ function bindEvents() {
     });
   });
 
-  // Kirim bug
   $("#btnKirimBug").addEventListener("click", kirimBug);
+  $("#sentOk").addEventListener("click", () => $("#popupSent").classList.remove("open"));
 
-  // Popup sent
-  $("#sentOk").addEventListener("click", () => {
-    $("#popupSent").classList.remove("open");
+  $("#senderBack").addEventListener("click", () => {
+    navigate("main");
+    $$(".nav-btn").forEach(b => b.classList.remove("active"));
+    const homeBtn = document.querySelector('[data-nav2="home"]');
+    if (homeBtn) homeBtn.classList.add("active");
   });
-
-  // Sender
-  $("#senderBack").addEventListener("click", () => navigate("main"));
   $("#btnTambahSender").addEventListener("click", () => {
     $("#senderInputWrap").style.display = "block";
     $("#senderNomor").value = "";
@@ -264,27 +238,41 @@ function bindEvents() {
   $("#btnOkeSender").addEventListener("click", () => {
     const n = $("#senderNomor").value.trim();
     if (!/^[0-9]{8,15}$/.test(n)) return alert("Nomor tidak valid");
-    openSenderCode();
+    openSenderCode(n);
   });
-  $("#codeClose").addEventListener("click", () => {
-    $("#popupSenderCode").classList.remove("open");
-  });
+  $("#codeClose").addEventListener("click", () => $("#popupSenderCode").classList.remove("open"));
   $("#codeRefresh").addEventListener("click", generateSenderCode);
 
-  // Setting
-  $("#settingBack").addEventListener("click", () => navigate("main"));
+  $("#settingBack").addEventListener("click", () => {
+    navigate("main");
+    $$(".nav-btn").forEach(b => b.classList.remove("active"));
+    const homeBtn = document.querySelector('[data-nav2="home"]');
+    if (homeBtn) homeBtn.classList.add("active");
+  });
   $("#btnLogout").addEventListener("click", logout);
   $("#btnGantiAkun").addEventListener("click", () => alert("Fitur ganti akun"));
   $("#btnGantiPass").addEventListener("click", () => alert("Fitur ganti password"));
 
-  // Toggle pass
   $("#togglePass").addEventListener("click", () => {
     const el = $("#profilPass");
     el.type = el.type === "password" ? "text" : "password";
   });
+
+  $("#btnSaveTarget").addEventListener("click", () => {
+    const n = $("#targetNomor").value.trim();
+    if (!/^[0-9]{8,15}$/.test(n)) return alert("Nomor tidak valid");
+    localStorage.setItem("target", n);
+    alert("Target disimpan: " + n);
+  });
+  $("#bugPin").addEventListener("click", () => alert("Pin"));
+  $("#bugHistory").addEventListener("click", () => alert("History"));
+  $("#senderRefresh").addEventListener("click", () => {
+    renderSenders();
+    updateSenderStatus();
+  });
 }
 
-// ============ QRIS ============
+/* ============ QRIS ============ */
 function openQris(price) {
   $("#qrisImg").src = price.qris;
   $("#qrisPrice").textContent = "Rp " + price.price.toLocaleString("id-ID");
@@ -292,16 +280,14 @@ function openQris(price) {
   $("#popupQris").classList.add("open");
 }
 
-// ============ LOGIN ============
+/* ============ LOGIN ============ */
 function doLogin() {
   const u = $("#loginUser").value.trim();
   const p = $("#loginPass").value.trim();
   const err = $("#loginError");
   err.textContent = "";
 
-  if (adminData && adminData.admin &&
-      u === adminData.admin.username &&
-      p === adminData.admin.password) {
+  if (adminData && adminData.admin && u === adminData.admin.username && p === adminData.admin.password) {
     state.user = { username: u, password: p, role: adminData.admin.role };
     navigate("anim");
     startGravity();
@@ -316,7 +302,6 @@ function doLogin() {
     startGravity();
     return;
   }
-
   err.textContent = "Username atau password salah";
 }
 
@@ -328,16 +313,15 @@ function updateProfileUI() {
   $("#profilPass").value = state.user.password;
 }
 
-// ============ ANIMASI GRAFITY 3D ============
+/* ============ GRAVITY 3D ============ */
 let gravityRAF = null;
-let gravityCtx = null;
 let particles = [];
 
 function startGravity() {
   const canvas = $("#gravityCanvas");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  gravityCtx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d");
   particles = [];
   for (let i = 0; i < 120; i++) {
     particles.push({
@@ -351,49 +335,38 @@ function startGravity() {
     });
   }
   let frame = 0;
-  const MAX = 300;
   function loop() {
     frame++;
     const w = canvas.width;
     const h = canvas.height;
-    gravityCtx.fillStyle = "rgba(0,0,0,0.25)";
-    gravityCtx.fillRect(0, 0, w, h);
-
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(0, 0, w, h);
     particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.z += p.vz;
+      p.x += p.vx; p.y += p.vy; p.z += p.vz;
       if (p.z < 50) p.z = 50;
       if (p.z > 1200) p.z = 1200;
       if (p.x < 0) p.x = w;
       if (p.x > w) p.x = 0;
       if (p.y < 0) p.y = h;
       if (p.y > h) p.y = 0;
-
       const scale = 500 / p.z;
-      const px = (p.x - w / 2) * scale + w / 2;
-      const py = (p.y - h / 2) * scale + h / 2;
+      const px = (p.x - w/2) * scale + w/2;
+      const py = (p.y - h/2) * scale + h/2;
       const r = p.size * scale;
       if (r > 0.2 && px > 0 && px < w && py > 0 && py < h) {
-        gravityCtx.beginPath();
-        gravityCtx.arc(px, py, r, 0, Math.PI * 2);
-        gravityCtx.fillStyle = `rgba(255,255,255,${Math.min(1, scale * 2)})`;
-        gravityCtx.fill();
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(1, scale * 2)})`;
+        ctx.fill();
       }
     });
-
-    if (frame >= MAX) {
-      gravityRAF = requestAnimationFrame(loop);
-      // auto lanjut setelah 300 frame? no, tunggu user skip atau selesai
-    } else {
-      gravityRAF = requestAnimationFrame(loop);
-    }
-    // Auto selesai setelah 7 detik
-    if (frame === 420) {
+    if (frame >= 420) {
       stopGravity();
       navigate("main");
       updateProfileUI();
+      return;
     }
+    gravityRAF = requestAnimationFrame(loop);
   }
   loop();
 }
@@ -403,19 +376,18 @@ function stopGravity() {
   gravityRAF = null;
 }
 
-// ============ SENDER CODE ============
+/* ============ SENDER CODE ============ */
 function generateSenderCode() {
   const seg = () => Math.random().toString(36).toUpperCase().slice(2, 6).padEnd(4, "X");
   $("#senderCode").textContent = `${seg()}-${seg()}`;
 }
 
-function openSenderCode() {
+function openSenderCode(nomor) {
   generateSenderCode();
   $("#popupSenderCode").classList.add("open");
-  const n = $("#senderNomor").value.trim();
   setTimeout(() => {
-    if (!state.senders.find(s => s.nomor === n)) {
-      state.senders.push({ nomor: n, online: true });
+    if (!state.senders.find(s => s.nomor === nomor)) {
+      state.senders.push({ nomor, online: true });
       renderSenders();
       updateSenderStatus();
     }
@@ -425,6 +397,10 @@ function openSenderCode() {
 function renderSenders() {
   const wrap = $("#senderList");
   wrap.innerHTML = "";
+  if (!state.senders.length) {
+    wrap.innerHTML = `<div class="sender-item"><div><span class="status-dot"></span>Belum ada sender</div></div>`;
+    return;
+  }
   state.senders.forEach((s, i) => {
     const div = document.createElement("div");
     div.className = "sender-item";
@@ -443,11 +419,19 @@ function renderSenders() {
 
 function updateSenderStatus() {
   const on = state.senders.some(s => s.online);
-  $("#senderStatus").textContent = `STATUS SENDER: ${on ? "ON" : "OFF"}`;
-  $("#statSender").textContent = state.senders.length;
+  const ss = $("#senderStatus");
+  if (ss) ss.textContent = `STATUS SENDER: ${on ? "ON" : "OFF"}`;
+  const st = $("#statSender");
+  if (st) st.textContent = state.senders.length;
+  const sub = $("#globalSenderSub");
+  if (sub) sub.textContent = state.senders.length + " sender";
+  const onl = $("#senderOnlineCount");
+  if (onl) onl.textContent = state.senders.length;
+  const pr = $("#pribadiSub");
+  if (pr) pr.textContent = state.senders.length ? state.senders.length + " sender" : "Kosong";
 }
 
-// ============ KIRIM BUG ============
+/* ============ KIRIM BUG ============ */
 function kirimBug() {
   const nomor = $("#targetNomor").value.trim();
   if (!/^[0-9]{8,15}$/.test(nomor)) return alert("Nomor tidak valid");
@@ -471,7 +455,7 @@ function kirimBug() {
   }, 1000);
 }
 
-// ============ DRAWER / PANEL ============
+/* ============ DRAWER / PANEL ============ */
 function openDrawer() {
   $("#drawer").classList.add("open");
   $("#drawerOverlay").classList.add("open");
@@ -486,28 +470,29 @@ function openPanel(name) {
   if (name === "profil") updateProfileUI();
 }
 
-// ============ SETTING ============
+/* ============ SETTING ============ */
 function logout() {
   state.user = null;
   navigate("splash");
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-  document.querySelector('[data-nav2="home"]').classList.add("active");
+  $$(".nav-btn").forEach(b => b.classList.remove("active"));
+  const home = document.querySelector('[data-nav2="home"]');
+  if (home) home.classList.add("active");
   $("#loginUser").value = "";
   $("#loginPass").value = "";
   $("#loginError").textContent = "";
 }
 
-// ============ STATS DUMMY ============
+/* ============ STATS ============ */
 function startStats() {
   setInterval(() => {
     const online = Math.floor(Math.random() * 40) + 10;
     const sender = state.senders.length;
     const cpu = Math.floor(Math.random() * 60) + 20;
-    $("#statOnline").textContent = online;
-    $("#statSender").textContent = sender;
-    $("#statCpu").textContent = cpu + "%";
+    const s1 = $("#statOnline"); if (s1) s1.textContent = online;
+    const s2 = $("#statSender"); if (s2) s2.textContent = sender;
+    const s3 = $("#statCpu"); if (s3) s3.textContent = cpu + "%";
   }, 3000);
 }
 
-// ============ START ============
+/* ============ START ============ */
 window.addEventListener("DOMContentLoaded", init);

@@ -39,14 +39,14 @@ body {
   position: relative;
 }
 
-/* BG VIDEO */
+/* ============ BG VIDEO ============ */
 .bg-global {
   position: fixed;
   top: 0; left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -2;
+  z-index: -1;
   filter: grayscale(100%) contrast(1.05);
   pointer-events: none;
 }
@@ -54,22 +54,22 @@ body {
   position: fixed;
   inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.72) 100%);
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
 }
 
-/* SCREEN */
+/* ============ SCREEN ============ */
 .screen {
   display: none;
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 10;
   flex-direction: column;
   overflow: hidden;
 }
 .screen.active { display: flex; }
 
-/* SPLASH */
+/* ============ SPLASH ============ */
 .splash-wrap {
   flex: 1;
   display: flex;
@@ -79,6 +79,8 @@ body {
   gap: 16px;
   padding: 40px 24px;
   padding-top: calc(40px + var(--safe-top));
+  position: relative;
+  z-index: 50;
 }
 .splash-logo {
   width: 200px;
@@ -100,7 +102,7 @@ body {
   font-weight: 600;
 }
 
-/* BUTTONS */
+/* ============ BUTTONS ============ */
 .btn {
   width: 100%;
   max-width: 320px;
@@ -118,7 +120,7 @@ body {
   -webkit-appearance: none;
   appearance: none;
   pointer-events: auto;
-  z-index: 1;
+  z-index: 100;
   position: relative;
 }
 .btn-primary { background: var(--black); color: var(--white); box-shadow: var(--brut-w); }
@@ -128,7 +130,7 @@ body {
 .btn-ghost { background: rgba(255,255,255,.08); color: var(--white); border: 2px solid var(--white); }
 .btn-danger { background: var(--black); color: var(--white); border-color: var(--white); box-shadow: var(--brut-w); }
 
-/* TOPBAR */
+/* ============ TOPBAR ============ */
 .topbar {
   display: flex;
   align-items: center;
@@ -163,7 +165,7 @@ body {
 }
 .icon-btn:active { background: rgba(255,255,255,.08); }
 
-/* CONTENT SCROLL */
+/* ============ CONTENT SCROLL ============ */
 .content-scroll {
   flex: 1;
   overflow-y: auto;
@@ -179,7 +181,7 @@ body {
   z-index: 1;
 }
 
-/* FIELD */
+/* ============ FIELD ============ */
 .field-block { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .field-block label {
   font-size: 11px; font-weight: 900; letter-spacing: 2.5px;
@@ -208,7 +210,7 @@ body {
   width: 52px; height: auto; border-radius: var(--r-md); flex-shrink: 0;
 }
 
-/* PRICE GRID */
+/* ============ PRICE GRID ============ */
 .price-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; width: 100%; }
 .price-card {
   border: 2px solid var(--black); border-radius: var(--r-lg);
@@ -222,13 +224,13 @@ body {
 .price-card h4 { font-size: 10px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; line-height: 1.3; }
 .price-card p { font-size: 16px; font-weight: 900; letter-spacing: -0.3px; }
 
-/* LOGIN */
+/* ============ LOGIN ============ */
 .login-wrap { justify-content: center; align-items: center; }
 .login-logo { width: 140px; margin-bottom: 14px; filter: grayscale(100%); }
 .login-wrap .field-block, .login-wrap .btn { max-width: 340px; }
 .login-error { color: var(--black); font-size: 12px; font-weight: 800; text-align: center; min-height: 16px; }
 
-/* ANIM */
+/* ============ ANIM ============ */
 .anim-screen { background: var(--black); }
 #gravityCanvas { width: 100%; height: 100%; display: block; }
 .btn-skip {
@@ -249,11 +251,11 @@ body {
   pointer-events: auto;
 }
 
-/* MAIN */
+/* ============ MAIN ============ */
 .brand-title { font-size: 14px; font-weight: 900; letter-spacing: 2px; flex: 1; text-align: center; color: var(--white); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .status-online { font-size: 9px; font-weight: 900; letter-spacing: 1.2px; padding: 5px 10px; border: 1.5px solid var(--white); border-radius: 999px; flex-shrink: 0; color: var(--white); }
 
-/* VIDEO BOX */
+/* ============ VIDEO BOX ============ */
 .video-box {
   width: 100%; aspect-ratio: 16/9;
   border-radius: var(--r-lg); overflow: hidden;
@@ -262,7 +264,7 @@ body {
 }
 .video-box video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; filter: grayscale(100%); display: block; }
 
-/* ABOUT */
+/* ============ ABOUT ============ */
 .about-block {
   border: 2px solid var(--black); border-radius: var(--r-lg);
   padding: 16px; background: var(--white); box-shadow: var(--brut); width: 100%;
@@ -270,7 +272,7 @@ body {
 .about-block h2 { font-size: 14px; font-weight: 900; letter-spacing: 1.5px; margin-bottom: 6px; }
 .about-block p { font-size: 12px; color: var(--gray-3); line-height: 1.55; }
 
-/* HERO CARD */
+/* ============ HERO CARD ============ */
 .main-scroll { padding-bottom: calc(140px + var(--safe-bottom)); }
 .hero-card {
   border-radius: 28px;
@@ -343,7 +345,7 @@ body {
 .circle-val { font-size: 15px; font-weight: 900; margin-top: 4px; }
 .circle-lbl { font-size: 9.5px; font-weight: 800; color: var(--gray-4); }
 
-/* BOTTOM NAV — hanya di screen yg aktif */
+/* ============ BOTTOM NAV ============ */
 .bottom-nav { display: none; }
 .screen.active .bottom-nav {
   display: flex;
@@ -404,7 +406,7 @@ body {
 .nav-btn.active .nav-label { color: var(--white); transform: translateY(-16px); }
 .nav-btn:not(.active) .nav-label { opacity: .75; }
 
-/* BUG PAGE */
+/* ============ BUG PAGE ============ */
 .bug-page { flex: 1; display: flex; flex-direction: column; background: var(--gray-8); overflow: hidden; position: relative; z-index: 1; }
 .bug-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -503,7 +505,7 @@ body {
   padding: 2px 8px; color: var(--white); font-weight: 800; margin-left: 2px;
 }
 
-/* BUG SCROLL HORIZONTAL */
+/* ============ BUG SCROLL HORIZONTAL ============ */
 .bug-scroll {
   display: flex;
   gap: 12px;
@@ -566,7 +568,7 @@ body {
   font-family: "SF Mono", "Menlo", monospace;
 }
 
-/* WHITE CARD */
+/* ============ WHITE CARD ============ */
 .white-card {
   background: var(--white); border-radius: 28px;
   padding: 18px; display: flex; flex-direction: column; gap: 14px;
@@ -583,17 +585,4 @@ body {
 
 .sender-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .mode-card {
-  background: var(--gray-8); border: 2px solid var(--black);
-  border-radius: 18px; padding: 16px 12px;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  cursor: pointer; text-align: center;
-  transition: background .18s ease;
-  user-select: none; -webkit-user-select: none;
-  pointer-events: auto;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.mode-card.active { background: var(--black); }
-.mode-icon {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--white); border: 2px solid 
+  background: var(--gray-8); border: 2px solid va

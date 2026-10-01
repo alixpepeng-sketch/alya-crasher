@@ -46,14 +46,14 @@ function init() {
 
 function loadJSON() {
   fetch("admin.json")
-    .then(r => r.json())
-    .then(d => { adminData = d; })
-    .catch(() => { adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } }; });
+    .then(function(r) { return r.json(); })
+    .then(function(d) { adminData = d; })
+    .catch(function() { adminData = { admin: { username: "Alyz", password: "Pemula", role: "Admin" } }; });
 
   fetch("sosmed.json")
-    .then(r => r.json())
-    .then(d => { sosmedData = d; buildLinkGB(); })
-    .catch(() => {
+    .then(function(r) { return r.json(); })
+    .then(function(d) { sosmedData = d; buildLinkGB(); })
+    .catch(function() {
       sosmedData = {
         links: [{ name: "TikTok", url: "#" }],
         help: "#",
@@ -65,17 +65,11 @@ function loadJSON() {
 
 /* ============ NAV ============ */
 function navigate(id) {
-  $$(".screen").forEach(s => s.classList.remove("active"));
+  $$(".screen").forEach(function(s) { s.classList.remove("active"); });
   const el = document.getElementById("screen-" + id);
   if (el) el.classList.add("active");
-  $$(".panel").forEach(p => p.classList.remove("open"));
+  $$(".panel").forEach(function(p) { p.classList.remove("open"); });
   closeDrawer();
-}
-
-function setNavActive(name) {
-  $$(".nav-btn").forEach(function(b) {
-    b.classList.toggle("active", b.dataset.nav2 === name);
-  });
 }
 
 /* ============ BUILD PRICE ============ */
@@ -86,10 +80,9 @@ function buildPriceGrid() {
     PRICES.forEach(function(p) {
       const card = document.createElement("div");
       card.className = "price-card";
-      card.dataset.id = p.id;
       card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
       card.addEventListener("click", function() {
-        $$(".price-card").forEach(c => c.classList.remove("selected"));
+        grid.querySelectorAll(".price-card").forEach(function(c) { c.classList.remove("selected"); });
         card.classList.add("selected");
         state.selectedPrice = p;
       });
@@ -105,7 +98,7 @@ function buildPriceGrid() {
       card.className = "price-card";
       card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
       card.addEventListener("click", function() {
-        up.querySelectorAll(".price-card").forEach(x => x.classList.remove("selected"));
+        up.querySelectorAll(".price-card").forEach(function(x) { x.classList.remove("selected"); });
         card.classList.add("selected");
       });
       up.appendChild(card);
@@ -139,7 +132,7 @@ function buildBugList() {
 
     card.addEventListener("click", function() {
       if (state.senderMode === "global" && !b.global) return;
-      $$(".bug-option").forEach(c => c.classList.remove("selected"));
+      $$(".bug-option").forEach(function(c) { c.classList.remove("selected"); });
       card.classList.add("selected");
       state.selectedBug = b;
     });
@@ -185,19 +178,28 @@ function buildLinkGB() {
 
 /* ============ EVENTS ============ */
 function bindEvents() {
+  /* Splash nav (MASUK / BELI) */
   $$("[data-nav]").forEach(function(btn) {
-    btn.addEventListener("click", function() { navigate(btn.dataset.nav); });
-  });
-  $$("[data-back]").forEach(function(btn) {
-    btn.addEventListener("click", function() { navigate(btn.dataset.back); });
+    btn.addEventListener("click", function() {
+      navigate(btn.dataset.nav);
+    });
   });
 
+  /* Back button */
+  $$("[data-back]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      navigate(btn.dataset.back);
+    });
+  });
+
+  /* Help */
   const btnHelp = $("#btnHelp");
   if (btnHelp) btnHelp.addEventListener("click", function() {
     const url = (sosmedData && sosmedData.help) ? sosmedData.help : "#";
     window.open(url, "_blank");
   });
 
+  /* Bayar */
   const btnBayar = $("#btnBayar");
   if (btnBayar) btnBayar.addEventListener("click", function() {
     const u = $("#beliUser").value.trim();
@@ -207,22 +209,25 @@ function bindEvents() {
     openQris(state.selectedPrice);
   });
 
+  /* QRIS close */
   const qrisClose = $("#qrisClose");
   if (qrisClose) qrisClose.addEventListener("click", function() {
     $("#popupQris").classList.remove("open");
   });
 
+  /* Login */
   const btnLogin = $("#btnLogin");
   if (btnLogin) btnLogin.addEventListener("click", doLogin);
 
+  /* Skip anim */
   const btnSkip = $("#btnSkip");
   if (btnSkip) btnSkip.addEventListener("click", function() {
     stopGravity();
     navigate("main");
     updateProfileUI();
-    setNavActive("home");
   });
 
+  /* Drawer */
   const btnDrawer = $("#btnDrawer");
   if (btnDrawer) btnDrawer.addEventListener("click", openDrawer);
   const drawerOverlay = $("#drawerOverlay");
@@ -236,10 +241,12 @@ function bindEvents() {
   });
   $$(".panel-close").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      btn.closest(".panel").classList.remove("open");
+      const p = btn.closest(".panel");
+      if (p) p.classList.remove("open");
     });
   });
 
+  /* Foto profil */
   const photoInput = $("#photoInput");
   if (photoInput) photoInput.addEventListener("change", function(e) {
     const f = e.target.files[0];
@@ -252,7 +259,7 @@ function bindEvents() {
     reader.readAsDataURL(f);
   });
 
-  /* BOTTOM NAV — semua tombol di semua screen */
+  /* Bottom nav — semua tombol di semua screen */
   $$("[data-nav2]").forEach(function(btn) {
     btn.addEventListener("click", function() {
       const t = btn.dataset.nav2;
@@ -263,7 +270,7 @@ function bindEvents() {
     });
   });
 
-  /* SENDER MODE */
+  /* Sender mode Pribadi/Global */
   const senderModeWrap = $("#senderMode");
   if (senderModeWrap) {
     senderModeWrap.addEventListener("click", function(e) {
@@ -278,24 +285,29 @@ function bindEvents() {
     });
   }
 
+  /* Kirim bug */
   const btnKirimBug = $("#btnKirimBug");
   if (btnKirimBug) btnKirimBug.addEventListener("click", kirimBug);
 
+  /* Sent OK */
   const sentOk = $("#sentOk");
   if (sentOk) sentOk.addEventListener("click", function() {
     $("#popupSent").classList.remove("open");
   });
 
+  /* Sender back */
   const senderBack = $("#senderBack");
   if (senderBack) senderBack.addEventListener("click", function() {
     navigate("main");
-    setNavActive("home");
   });
 
+  /* Tambah sender */
   const btnTambahSender = $("#btnTambahSender");
   if (btnTambahSender) btnTambahSender.addEventListener("click", function() {
-    $("#senderInputWrap").style.display = "block";
-    $("#senderNomor").value = "";
+    const w = $("#senderInputWrap");
+    if (w) w.style.display = "block";
+    const sn = $("#senderNomor");
+    if (sn) sn.value = "";
   });
 
   const btnOkeSender = $("#btnOkeSender");
@@ -312,11 +324,12 @@ function bindEvents() {
   const codeRefresh = $("#codeRefresh");
   if (codeRefresh) codeRefresh.addEventListener("click", generateSenderCode);
 
+  /* Setting back */
   const settingBack = $("#settingBack");
   if (settingBack) settingBack.addEventListener("click", function() {
     navigate("main");
-    setNavActive("home");
   });
+
   const btnLogout = $("#btnLogout");
   if (btnLogout) btnLogout.addEventListener("click", logout);
   const btnGantiAkun = $("#btnGantiAkun");
@@ -324,12 +337,14 @@ function bindEvents() {
   const btnGantiPass = $("#btnGantiPass");
   if (btnGantiPass) btnGantiPass.addEventListener("click", function() { alert("Fitur ganti password"); });
 
+  /* Toggle pass */
   const togglePass = $("#togglePass");
   if (togglePass) togglePass.addEventListener("click", function() {
     const el = $("#profilPass");
     el.type = el.type === "password" ? "text" : "password";
   });
 
+  /* Save target */
   const btnSaveTarget = $("#btnSaveTarget");
   if (btnSaveTarget) btnSaveTarget.addEventListener("click", function() {
     const n = $("#targetNomor").value.trim();
@@ -378,7 +393,7 @@ function doLogin() {
 
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem("users") || "[]"); } catch(e) { stored = []; }
-  const found = stored.find(x => x.username === u && x.password === p);
+  const found = stored.find(function(x) { return x.username === u && x.password === p; });
   if (found) {
     state.user = found;
     navigate("anim");
@@ -450,7 +465,6 @@ function startGravity() {
       stopGravity();
       navigate("main");
       updateProfileUI();
-      setNavActive("home");
       return;
     }
     gravityRAF = requestAnimationFrame(loop);
@@ -473,7 +487,7 @@ function openSenderCode(nomor) {
   generateSenderCode();
   $("#popupSenderCode").classList.add("open");
   setTimeout(function() {
-    if (!state.senders.find(s => s.nomor === nomor)) {
+    if (!state.senders.find(function(s) { return s.nomor === nomor; })) {
       state.senders.push({ nomor: nomor, online: true });
       renderSenders();
       updateSenderStatus();
@@ -551,7 +565,6 @@ function openPanel(name) {
 function logout() {
   state.user = null;
   navigate("splash");
-  setNavActive("home");
   const lu = $("#loginUser"); if (lu) lu.value = "";
   const lp = $("#loginPass"); if (lp) lp.value = "";
   const le = $("#loginError"); if (le) le.textContent = "";

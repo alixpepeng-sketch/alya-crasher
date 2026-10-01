@@ -36,7 +36,6 @@ function init() {
   loadJSON();
   buildPriceGrid();
   buildBugList();
-  buildLinkGB();
   bindEvents();
   navigate("splash");
   startStats();
@@ -178,28 +177,19 @@ function buildLinkGB() {
 
 /* ============ EVENTS ============ */
 function bindEvents() {
-  /* Splash nav (MASUK / BELI) */
   $$("[data-nav]").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      navigate(btn.dataset.nav);
-    });
+    btn.addEventListener("click", function() { navigate(btn.dataset.nav); });
   });
-
-  /* Back button */
   $$("[data-back]").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      navigate(btn.dataset.back);
-    });
+    btn.addEventListener("click", function() { navigate(btn.dataset.back); });
   });
 
-  /* Help */
   const btnHelp = $("#btnHelp");
   if (btnHelp) btnHelp.addEventListener("click", function() {
     const url = (sosmedData && sosmedData.help) ? sosmedData.help : "#";
     window.open(url, "_blank");
   });
 
-  /* Bayar */
   const btnBayar = $("#btnBayar");
   if (btnBayar) btnBayar.addEventListener("click", function() {
     const u = $("#beliUser").value.trim();
@@ -209,17 +199,14 @@ function bindEvents() {
     openQris(state.selectedPrice);
   });
 
-  /* QRIS close */
   const qrisClose = $("#qrisClose");
   if (qrisClose) qrisClose.addEventListener("click", function() {
     $("#popupQris").classList.remove("open");
   });
 
-  /* Login */
   const btnLogin = $("#btnLogin");
   if (btnLogin) btnLogin.addEventListener("click", doLogin);
 
-  /* Skip anim */
   const btnSkip = $("#btnSkip");
   if (btnSkip) btnSkip.addEventListener("click", function() {
     stopGravity();
@@ -227,7 +214,6 @@ function bindEvents() {
     updateProfileUI();
   });
 
-  /* Drawer */
   const btnDrawer = $("#btnDrawer");
   if (btnDrawer) btnDrawer.addEventListener("click", openDrawer);
   const drawerOverlay = $("#drawerOverlay");
@@ -246,7 +232,6 @@ function bindEvents() {
     });
   });
 
-  /* Foto profil */
   const photoInput = $("#photoInput");
   if (photoInput) photoInput.addEventListener("change", function(e) {
     const f = e.target.files[0];
@@ -259,7 +244,6 @@ function bindEvents() {
     reader.readAsDataURL(f);
   });
 
-  /* Bottom nav — semua tombol di semua screen */
   $$("[data-nav2]").forEach(function(btn) {
     btn.addEventListener("click", function() {
       const t = btn.dataset.nav2;
@@ -270,7 +254,6 @@ function bindEvents() {
     });
   });
 
-  /* Sender mode Pribadi/Global */
   const senderModeWrap = $("#senderMode");
   if (senderModeWrap) {
     senderModeWrap.addEventListener("click", function(e) {
@@ -285,23 +268,19 @@ function bindEvents() {
     });
   }
 
-  /* Kirim bug */
   const btnKirimBug = $("#btnKirimBug");
   if (btnKirimBug) btnKirimBug.addEventListener("click", kirimBug);
 
-  /* Sent OK */
   const sentOk = $("#sentOk");
   if (sentOk) sentOk.addEventListener("click", function() {
     $("#popupSent").classList.remove("open");
   });
 
-  /* Sender back */
   const senderBack = $("#senderBack");
   if (senderBack) senderBack.addEventListener("click", function() {
     navigate("main");
   });
 
-  /* Tambah sender */
   const btnTambahSender = $("#btnTambahSender");
   if (btnTambahSender) btnTambahSender.addEventListener("click", function() {
     const w = $("#senderInputWrap");
@@ -324,7 +303,6 @@ function bindEvents() {
   const codeRefresh = $("#codeRefresh");
   if (codeRefresh) codeRefresh.addEventListener("click", generateSenderCode);
 
-  /* Setting back */
   const settingBack = $("#settingBack");
   if (settingBack) settingBack.addEventListener("click", function() {
     navigate("main");
@@ -337,14 +315,12 @@ function bindEvents() {
   const btnGantiPass = $("#btnGantiPass");
   if (btnGantiPass) btnGantiPass.addEventListener("click", function() { alert("Fitur ganti password"); });
 
-  /* Toggle pass */
   const togglePass = $("#togglePass");
   if (togglePass) togglePass.addEventListener("click", function() {
     const el = $("#profilPass");
     el.type = el.type === "password" ? "text" : "password";
   });
 
-  /* Save target */
   const btnSaveTarget = $("#btnSaveTarget");
   if (btnSaveTarget) btnSaveTarget.addEventListener("click", function() {
     const n = $("#targetNomor").value.trim();

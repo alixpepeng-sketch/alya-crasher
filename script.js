@@ -3,12 +3,10 @@ const $$ = (s) => document.querySelectorAll(s);
 
 const state = {
   user: null,
-  photo: null,
   selectedPrice: null,
   selectedBug: null,
   senderMode: "pribadi",
-  senders: [],
-  currentScreen: "splash"
+  senders: []
 };
 
 const PRICES = [
@@ -31,6 +29,7 @@ const BUGS = [
 
 let adminData = null;
 let sosmedData = null;
+let gravityRAF = null;
 
 /* ============ INIT ============ */
 function init() {
@@ -53,10 +52,7 @@ function loadJSON() {
 
   fetch("sosmed.json")
     .then(r => r.json())
-    .then(d => {
-      sosmedData = d;
-      buildLinkGB();
-    })
+    .then(d => { sosmedData = d; buildLinkGB(); })
     .catch(() => {
       sosmedData = {
         links: [{ name: "TikTok", url: "#" }],
@@ -72,9 +68,14 @@ function navigate(id) {
   $$(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById("screen-" + id);
   if (el) el.classList.add("active");
-  state.currentScreen = id;
   $$(".panel").forEach(p => p.classList.remove("open"));
   closeDrawer();
+}
+
+function setNavActive(name) {
+  $$(".nav-btn").forEach(function(b) {
+    b.classList.toggle("active", b.dataset.nav2 === name);
+  });
 }
 
 /* ============ BUILD PRICE ============ */
@@ -82,12 +83,12 @@ function buildPriceGrid() {
   const grid = $("#priceGrid");
   if (grid) {
     grid.innerHTML = "";
-    PRICES.forEach(p => {
+    PRICES.forEach(function(p) {
       const card = document.createElement("div");
       card.className = "price-card";
       card.dataset.id = p.id;
       card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
-      card.addEventListener("click", () => {
+      card.addEventListener("click", function() {
         $$(".price-card").forEach(c => c.classList.remove("selected"));
         card.classList.add("selected");
         state.selectedPrice = p;
@@ -99,11 +100,11 @@ function buildPriceGrid() {
   const up = $("#uproleGrid");
   if (up) {
     up.innerHTML = "";
-    PRICES.forEach(p => {
+    PRICES.forEach(function(p) {
       const card = document.createElement("div");
       card.className = "price-card";
       card.innerHTML = '<h4>' + p.label + '</h4><p>Rp ' + p.price.toLocaleString("id-ID") + '</p>';
-      card.addEventListener("click", () => {
+      card.addEventListener("click", function() {
         up.querySelectorAll(".price-card").forEach(x => x.classList.remove("selected"));
         card.classList.add("selected");
       });
@@ -247,14 +248,13 @@ function bindEvents() {
     reader.onload = function(ev) {
       const heroPhoto = $("#userPhotoHero");
       if (heroPhoto) heroPhoto.src = ev.target.result;
-      state.photo = ev.target.result;
     };
     reader.readAsDataURL(f);
   });
 
+  /* BOTTOM NAV — semua tombol di semua screen */
   $$("[data-nav2]").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      setNavActive(btn.dataset.nav2);
       const t = btn.dataset.nav2;
       if (t === "home") navigate("main");
       else if (t === "bug") navigate("bug");
@@ -263,6 +263,7 @@ function bindEvents() {
     });
   });
 
+  /* SENDER MODE */
   const senderModeWrap = $("#senderMode");
   if (senderModeWrap) {
     senderModeWrap.addEventListener("click", function(e) {
@@ -349,12 +350,6 @@ function bindEvents() {
   });
 }
 
-function setNavActive(name) {
-  $$(".nav-btn").forEach(function(b) {
-    b.classList.toggle("active", b.dataset.nav2 === name);
-  });
-}
-
 /* ============ QRIS ============ */
 function openQris(price) {
   $("#qrisImg").src = price.qris;
@@ -399,28 +394,22 @@ function updateProfileUI() {
   const uname = state.user.username.toUpperCase();
   const role = (state.user.role || "User").toUpperCase();
 
-  const heroName = $("#heroName");
-  if (heroName) heroName.textContent = uname;
-  const heroRole = $("#heroRole");
-  if (heroRole) heroRole.textContent = role;
+  const hn = $("#heroName"); if (hn) hn.textContent = uname;
+  const hr = $("#heroRole"); if (hr) hr.textContent = role;
 
-  const pu = $("#profilUser");
-  if (pu) pu.value = state.user.username;
-  const pp = $("#profilPass");
-  if (pp) pp.value = state.user.password;
+  const pu = $("#profilUser"); if (pu) pu.value = state.user.username;
+  const pp = $("#profilPass"); if (pp) pp.value = state.user.password;
 }
 
-/* ============ GRAVITY 3D ============ */
-let gravityRAF = null;
-let particles = [];
-
+/* ============ GRAVITY ANIM ============ */
 function startGravity() {
   const canvas = $("#gravityCanvas");
+  if (!canvas) return;
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext("2d");
-  particles = [];
-  for (let i = 0; i < 120; i++) {
+  const particles = [];
+  for (let i = 0; i < 100; i++) {
     particles.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -457,7 +446,7 @@ function startGravity() {
         ctx.fill();
       }
     });
-    if (frame >= 420) {
+    if (frame >= 400) {
       stopGravity();
       navigate("main");
       updateProfileUI();
@@ -516,14 +505,10 @@ function renderSenders() {
 }
 
 function updateSenderStatus() {
-  const st = $("#statSender");
-  if (st) st.textContent = state.senders.length;
-  const sub = $("#globalSenderSub");
-  if (sub) sub.textContent = state.senders.length + " sender";
-  const onl = $("#senderOnlineCount");
-  if (onl) onl.textContent = state.senders.length;
-  const pr = $("#pribadiSub");
-  if (pr) pr.textContent = state.senders.length ? state.senders.length + " sender" : "Kosong";
+  const st = $("#statSender"); if (st) st.textContent = state.senders.length;
+  const sub = $("#globalSenderSub"); if (sub) sub.textContent = state.senders.length + " sender";
+  const onl = $("#senderOnlineCount"); if (onl) onl.textContent = state.senders.length;
+  const pr = $("#pribadiSub"); if (pr) pr.textContent = state.senders.length ? state.senders.length + " sender" : "Kosong";
 }
 
 /* ============ KIRIM BUG ============ */
@@ -538,9 +523,6 @@ function kirimBug() {
   const iv = setInterval(function() {
     n--;
     $("#countdownNum").textContent = n;
-    $("#countdownNum").style.animation = "none";
-    void $("#countdownNum").offsetWidth;
-    $("#countdownNum").style.animation = "popNum .35s ease";
     if (n <= 0) {
       clearInterval(iv);
       $("#popupCountdown").classList.remove("open");
@@ -552,14 +534,12 @@ function kirimBug() {
 
 /* ============ DRAWER / PANEL ============ */
 function openDrawer() {
-  $("#drawer").classList.add("open");
-  $("#drawerOverlay").classList.add("open");
+  const d = $("#drawer"); if (d) d.classList.add("open");
+  const o = $("#drawerOverlay"); if (o) o.classList.add("open");
 }
 function closeDrawer() {
-  const d = $("#drawer");
-  const o = $("#drawerOverlay");
-  if (d) d.classList.remove("open");
-  if (o) o.classList.remove("open");
+  const d = $("#drawer"); if (d) d.classList.remove("open");
+  const o = $("#drawerOverlay"); if (o) o.classList.remove("open");
 }
 function openPanel(name) {
   const p = document.getElementById("panel-" + name);
@@ -567,14 +547,14 @@ function openPanel(name) {
   if (name === "profil") updateProfileUI();
 }
 
-/* ============ SETTING ============ */
+/* ============ LOGOUT ============ */
 function logout() {
   state.user = null;
   navigate("splash");
   setNavActive("home");
-  $("#loginUser").value = "";
-  $("#loginPass").value = "";
-  $("#loginError").textContent = "";
+  const lu = $("#loginUser"); if (lu) lu.value = "";
+  const lp = $("#loginPass"); if (lp) lp.value = "";
+  const le = $("#loginError"); if (le) le.textContent = "";
 }
 
 /* ============ STATS ============ */
@@ -586,8 +566,6 @@ function startStats() {
 
     const s1 = $("#statOnline"); if (s1) s1.textContent = online;
     const s2 = $("#statSender"); if (s2) s2.textContent = state.senders.length;
-    const s3 = $("#statCpu"); if (s3) s3.textContent = Math.round(parseFloat(cpu) * 10) + "%";
-
     const v1 = $("#vpsRam1"); if (v1) v1.textContent = ramUsed + "GB/35.2GB";
     const v2 = $("#vpsCpu1"); if (v2) v2.textContent = cpu;
   }, 3000);

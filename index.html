@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#000000">
 <title>ALYA CRASHER</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- BG VIDEO GLOBAL (auto play terus) -->
 <video id="bgGlobal" class="bg-global" autoplay muted loop playsinline preload="auto">
   <source src="assets/bg.mp4" type="video/mp4">
 </video>
@@ -32,12 +32,8 @@
     <h2 class="topbar-title">BELI AKSES</h2>
     <span class="topbar-spacer"></span>
   </header>
-
   <div class="content-scroll">
-    <div class="price-grid" id="priceGrid">
-      <!-- harga diinject lewat JS -->
-    </div>
-
+    <div class="price-grid" id="priceGrid"></div>
     <div class="field-block">
       <label>USERNAME</label>
       <input type="text" id="beliUser" placeholder="ketik username" autocomplete="off">
@@ -46,8 +42,7 @@
       <label>PASSWORD</label>
       <input type="text" id="beliPass" placeholder="ketik password" autocomplete="off">
     </div>
-
-    <button class="btn btn-primary" id="btnBayar">BAYAR</button>
+    <button class="btn btn-primary" id="btnBayar" style="max-width:100%;">BAYAR</button>
   </div>
 </section>
 
@@ -58,7 +53,6 @@
     <h2 class="topbar-title">LOGIN</h2>
     <span class="topbar-spacer"></span>
   </header>
-
   <div class="content-scroll login-wrap">
     <img src="media/logo.png" alt="logo" class="login-logo">
     <div class="field-block">
@@ -69,12 +63,12 @@
       <label>PASSWORD</label>
       <input type="password" id="loginPass" placeholder="password" autocomplete="off">
     </div>
-    <button class="btn btn-primary" id="btnLogin">LOGIN</button>
+    <button class="btn btn-primary" id="btnLogin" style="max-width:340px;">LOGIN</button>
     <p class="login-error" id="loginError"></p>
   </div>
 </section>
 
-<!-- ================= ANIMASI GRAFITY ================= -->
+<!-- ================= ANIMASI ================= -->
 <section id="screen-anim" class="screen anim-screen">
   <canvas id="gravityCanvas"></canvas>
   <button class="btn btn-skip" id="btnSkip">SKIP</button>
@@ -111,17 +105,17 @@
 
     <div class="stats-grid">
       <div class="stat-box">
-        <span class="stat-icon" id="iconOnline"></span>
+        <span class="stat-icon"></span>
         <span class="stat-val" id="statOnline">0</span>
         <span class="stat-lbl">USER ONLINE</span>
       </div>
       <div class="stat-box">
-        <span class="stat-icon" id="iconSender"></span>
+        <span class="stat-icon"></span>
         <span class="stat-val" id="statSender">0</span>
         <span class="stat-lbl">SENDER</span>
       </div>
       <div class="stat-box">
-        <span class="stat-icon" id="iconCpu"></span>
+        <span class="stat-icon"></span>
         <span class="stat-val" id="statCpu">0%</span>
         <span class="stat-lbl">CPU VPS</span>
       </div>
@@ -133,8 +127,7 @@
     </div>
   </div>
 
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
+  <nav class="bottom-nav" id="bottomNav">
     <button class="nav-btn active" data-nav2="home">HOME</button>
     <button class="nav-btn" data-nav2="bug">MENU</button>
     <button class="nav-btn" data-nav2="sender">SENDER</button>
@@ -144,56 +137,150 @@
 
 <!-- ================= MENU BUG ================= -->
 <section id="screen-bug" class="screen">
-  <header class="topbar">
-    <button class="icon-btn back-btn" id="bugBack">&#8592;</button>
-    <h2 class="topbar-title">ALYA CRASHER</h2>
-    <span class="topbar-spacer"></span>
-  </header>
-
-  <div class="content-scroll">
-    <div class="video-box">
-      <video autoplay muted loop playsinline preload="auto">
-        <source src="assets/xstar.mp4" type="video/mp4">
-      </video>
+  <div class="bug-page">
+    <div class="bug-header">
+      <div class="bug-brand">
+        <span class="bug-brand-icon"></span>
+        <span class="bug-brand-text">ALYA BUG</span>
+      </div>
+      <div class="bug-header-actions">
+        <button class="bug-icon-btn" id="bugPin">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+        </button>
+        <button class="bug-icon-btn" id="bugHistory">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
+        </button>
+      </div>
     </div>
 
-    <div class="field-block">
-      <label>NOMOR TARGET</label>
-      <input type="tel" id="targetNomor" placeholder="628123456789" autocomplete="off">
+    <div class="bug-scroll-area">
+      <div class="video-box">
+        <video autoplay muted loop playsinline preload="auto">
+          <source src="assets/xstar.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="blue-card">
+        <div class="blue-card-head">
+          <span class="head-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+          </span>
+          <span class="head-text">NOMOR TARGET</span>
+        </div>
+
+        <div class="input-pill">
+          <span class="input-pill-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <input type="tel" id="targetNomor" placeholder="62xxxxxxxxxx" autocomplete="off" inputmode="numeric">
+        </div>
+
+        <button class="save-target-btn" id="btnSaveTarget">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span>SAVE TARGET</span>
+        </button>
+
+        <div class="bug-section-head">
+          <div class="bug-section-title">
+            <span class="head-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            </span>
+            <span class="head-text">PILIH BUG</span>
+          </div>
+          <span class="engine-status">
+            <span class="engine-dot"></span>
+            Engine lokal aktif
+            <span class="wa-badge">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              WA 11
+            </span>
+          </span>
+        </div>
+
+        <div class="bug-option-grid" id="bugList"></div>
+
+        <div class="bug-pagination">
+          <span class="dot"></span>
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+
+      <div class="white-card">
+        <div class="white-card-head">
+          <div class="bug-section-title dark">
+            <span class="head-icon light">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+            </span>
+            <span class="head-text">PILIH SENDER</span>
+          </div>
+          <span class="sender-online-badge">
+            <span class="online-dot"></span>
+            <span id="senderOnlineCount">0</span> sender online
+          </span>
+        </div>
+
+        <div class="sender-mode">
+          <div class="mode-card" data-mode="pribadi">
+            <div class="mode-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="mode-name">Pribadi</div>
+            <div class="mode-sub" id="pribadiSub">Kosong</div>
+          </div>
+          <div class="mode-card active" data-mode="global">
+            <div class="mode-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div class="mode-name">Global</div>
+            <div class="mode-sub" id="globalSenderSub">0 sender</div>
+          </div>
+        </div>
+
+        <div class="limit-info">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Sisa kirim global hari ini: <b id="limitCount">6 / 6</b></span>
+        </div>
+      </div>
     </div>
 
-    <div class="section-title">MENU BUG</div>
-    <div class="bug-scroll" id="bugList"></div>
-
-    <div class="sender-mode">
-      <div class="mode-box" data-mode="pribadi">PRIBADI</div>
-      <div class="mode-box" data-mode="global">GLOBAL</div>
-    </div>
-
-    <p class="sender-count" id="senderCount">20 SENDER</p>
-    <p class="sender-status" id="senderStatus">STATUS SENDER: OFF</p>
-
-    <button class="btn btn-primary" id="btnKirimBug">KIRIM BUG</button>
+    <button class="kirim-bug-btn" id="btnKirimBug">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <span>KIRIM BUG</span>
+    </button>
   </div>
 </section>
 
 <!-- ================= SENDER ================= -->
 <section id="screen-sender" class="screen">
-  <header class="topbar">
-    <button class="icon-btn back-btn" id="senderBack">&#8592;</button>
-    <h2 class="topbar-title">SENDER</h2>
-    <span class="topbar-spacer"></span>
-  </header>
-
-  <div class="content-scroll">
-    <button class="btn btn-outline" id="btnTambahSender">TAMBAH SENDER</button>
-    <div class="field-block" id="senderInputWrap" style="display:none;">
-      <label>NOMOR SENDER</label>
-      <input type="tel" id="senderNomor" placeholder="628123456789">
-      <button class="btn btn-primary" id="btnOkeSender" style="margin-top:10px;">OKE</button>
+  <div class="bug-page">
+    <div class="bug-header">
+      <button class="bug-icon-btn" id="senderBack">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <div class="bug-brand">
+        <span class="bug-brand-icon"></span>
+        <span class="bug-brand-text">SENDER</span>
+      </div>
+      <div class="bug-header-actions">
+        <button class="bug-icon-btn" id="senderRefresh">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+      </div>
     </div>
-    <div class="section-title">DAFTAR SENDER</div>
-    <div id="senderList" class="sender-list"></div>
+
+    <div class="bug-scroll-area">
+      <button class="btn btn-outline" id="btnTambahSender" style="max-width:100%;">TAMBAH SENDER</button>
+      <div class="field-block" id="senderInputWrap" style="display:none;">
+        <label>NOMOR SENDER</label>
+        <input type="tel" id="senderNomor" placeholder="628123456789" inputmode="numeric">
+        <button class="btn btn-primary" id="btnOkeSender" style="margin-top:10px; max-width:100%;">OKE</button>
+      </div>
+      <div class="section-title">DAFTAR SENDER</div>
+      <div id="senderList" class="sender-list"></div>
+    </div>
   </div>
 </section>
 
@@ -205,9 +292,9 @@
     <span class="topbar-spacer"></span>
   </header>
   <div class="content-scroll">
-    <button class="btn btn-outline" id="btnGantiAkun">GANTI AKUN</button>
-    <button class="btn btn-outline" id="btnGantiPass">GANTI PASSWORD</button>
-    <button class="btn btn-danger" id="btnLogout">LOGOUT</button>
+    <button class="btn btn-outline" id="btnGantiAkun" style="max-width:100%;">GANTI AKUN</button>
+    <button class="btn btn-outline" id="btnGantiPass" style="max-width:100%;">GANTI PASSWORD</button>
+    <button class="btn btn-danger" id="btnLogout" style="max-width:100%;">LOGOUT</button>
   </div>
 </section>
 
@@ -224,7 +311,7 @@
 </aside>
 <div id="drawerOverlay" class="drawer-overlay"></div>
 
-<!-- ================= DRAWER PANEL ================= -->
+<!-- ================= PANEL PROFIL ================= -->
 <section id="panel-profil" class="panel">
   <header class="topbar">
     <button class="icon-btn panel-close">&#8592;</button>
@@ -246,6 +333,7 @@
   </div>
 </section>
 
+<!-- ================= PANEL UPROLE ================= -->
 <section id="panel-uprole" class="panel">
   <header class="topbar">
     <button class="icon-btn panel-close">&#8592;</button>
@@ -257,6 +345,7 @@
   </div>
 </section>
 
+<!-- ================= PANEL LINK GB ================= -->
 <section id="panel-linkgb" class="panel">
   <header class="topbar">
     <button class="icon-btn panel-close">&#8592;</button>
@@ -266,6 +355,7 @@
   <div class="content-scroll" id="linkgbList"></div>
 </section>
 
+<!-- ================= PANEL INFO ================= -->
 <section id="panel-info" class="panel">
   <header class="topbar">
     <button class="icon-btn panel-close">&#8592;</button>
@@ -283,7 +373,7 @@
     <h3 id="qrisTitle">PEMBAYARAN</h3>
     <img id="qrisImg" src="media/qris1.png" alt="QRIS">
     <p id="qrisPrice">Rp 0</p>
-    <button class="btn btn-primary" id="qrisClose">TUTUP</button>
+    <button class="btn btn-primary" id="qrisClose" style="max-width:100%;">TUTUP</button>
   </div>
 </div>
 
@@ -295,13 +385,13 @@
   </div>
 </div>
 
-<!-- ================= POPUP TERKIRIM ================= -->
+<!-- ================= POPUP SENT ================= -->
 <div id="popupSent" class="modal">
   <div class="modal-box">
     <div class="check-circle">&#10003;</div>
     <h3>TERKIRIM</h3>
     <p id="sentText">Terkirim. Bug telah di kirim cek history bug untuk melihat status pengiriman</p>
-    <button class="btn btn-primary" id="sentOk">OKE</button>
+    <button class="btn btn-primary" id="sentOk" style="max-width:100%;">OKE</button>
   </div>
 </div>
 
@@ -310,11 +400,11 @@
   <div class="modal-box">
     <h3>ALYA CRASHER</h3>
     <p class="code-txt" id="senderCode">XXXX-XXXX</p>
-    <button class="btn btn-outline" id="codeRefresh">REFRESH</button>
-    <button class="btn btn-primary" id="codeClose">TUTUP</button>
+    <button class="btn btn-outline" id="codeRefresh" style="max-width:100%;">REFRESH</button>
+    <button class="btn btn-primary" id="codeClose" style="max-width:100%; margin-top:10px;">TUTUP</button>
   </div>
 </div>
 
 <script src="script.js"></script>
 </body>
-</html>
+  </html>
